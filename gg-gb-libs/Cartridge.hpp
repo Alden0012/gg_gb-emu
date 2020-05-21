@@ -1,6 +1,11 @@
 #ifndef Cartridge_HPP
 #define Cartridge_HPP
 #include <cstdint>
+#include <iostream>
+#include <fstream>
+#include "MMU.hpp"
+#include "MBC.hpp"
+#include <array>
 class Cartridge{
 	/*
 	enjoy reading all of this :)
@@ -58,7 +63,8 @@ class Cartridge{
 			  two different max mem modes {16Mbit ROM/8Kb RAM , 4MBit ROM/32Kb RAM} defaults to [1] on startup, 
 			  writing to the lsb of a byte in 0x6000-0x7FFF selects the mode (0 -> 16/8, 1-> 4/32)
 			  writing to the first 5 bits of a byte in 0x2000-0x3FFF will select an appropriate ROM bank at 0x4000-0x7FFF (0 and 1 point to rom bank 1)
-			  4/32 mode: Writing to 0x4000-5FFF will select an appropriate RAM bank at 0xA000-BFFF, before rw to RAM enable by writing XXXX1010 to 0000-01FFF area. To disable write XXXX0000 to the area.
+			  4/32 mode: Writing to 0x4000-5FFF will select an appropriate RAM bank at 0xA000-BFFF
+			  			 Before rw to RAM enable by writing XXXX1010 to 0000-01FFF area. To disable write XXXX0000 to the area.
 			  16/8 mode: Writing to the last 2 bits of a value in 0x4000-5FFF will set the two most significant ROM address lines.
 		MBC2: 
 			  works like MBC 1 with few exceptions:
@@ -87,42 +93,57 @@ class Cartridge{
 		Cart Location 0xA000 and 0xA100:
 			special write only regs if c0 is written to 0x0000-0x1FFF area. hardware control regs used to set up cart hardware for different games for bung cart.
 
-		ROM Size: kb = kbit
-			0- 256 kb / 2banks
-			1- 512 kb / 4banks
-			2- 1 Mb   / 8banks
-			3- 2 Mb   / 16banks
-			4- 4 Mb   / 32banks
-			5- 8 Mb   / 64banks
-			6- 16 Mb  / 128Banks
-			52- 9 Mb  / 72banks
-			53- 10 Mb / 80banks
-			54- 12 Mb / 96banks 
+		ROM Size: 
+			0- 32 kb   / 2   banks
+			1- 64 kb   / 4   banks
+			2- 128 kb  / 8   banks
+			3- 256 kb  / 16  banks
+			4- 512 kb  / 32  banks
+			5- 1Mb     / 64  banks
+			6- 2Mb     / 128 Banks
+			52-1.1Mb   / 72  banks
+			53-1.2 Mb  / 80  banks
+			54-1.5 Mb  / 96  banks 
 		RAM Size: 
 			0- None
-			1- 16kb/ 1 bank
-			2- 64kb/ 1 bank
-			3- 256kb/ 4 banks
-			4- 1Mb / 16 banks
+			1- 2   kb / 1 bank
+			2- 8   kb / 1 bank
+			3- 32  kb / 4 banks
+			4- 128 kb / 16 banks
 
 	
 
 	*/
 
-
+// loads cart and is used by MBC to give stuff to mmu
 private:
-	uint16_t Cart_Type;
-	uint16_t Rom_Size;
-	uint16_t Ram_Size;
-	std::vector<uint8_t> Cart_Contents;
+	uint8_t Cart_Type;
+	uint8_t rom_Size;
+	uint8_t ram_Size;
+	uint8_t *cart_rom;
+	char* path;
+	char* title;
+	MBC *BankControl;
+	MMU *mmu;
 public:
 
+	Cartridge(MMU* mem);
+	bool load(char* path);
+	MBC *InitMBC(Cartridge* icart);
+	inline uint8_t getROM(){return cart_rom;}
+	inline uint8_t getROM_Size(){return rom_size;}
+	inline uint8_t getRAM_Size(){return ram_Size;}
+	//inline void getCart_Type(){return Cart_Type;}
+
+	// void swapROMBank(uint8_t bank);
+	// void swapRAMBank(uint8_t bank);
 
 
 
 
 
 }
+
 
 
 

@@ -14,7 +14,7 @@ private:
 		0xA000 - 0xBFFF: External Ram (From the cartridge) | 8kB
 		0xC000 - 0xCFFF: 4kB WRAM Bank 0
 		0xD000 - 0xDFFF: 4kB WRAM Bank 1
-		0xE000 - 0xF0FF: Echo (Same as WRAM but typically unused) if you write to the actual RAM in range (0xC000 - 0xDE00) it writes to here as well
+		0xE000 - 0xFE00: Echo (Same as WRAM but typically unused) if you write to the actual RAM in range (0xC000 - 0xDE00) it writes to here as well
 		0xFE00 - 0xFE9F: Sprite Attribute Table (OAM)
 		0xFEA0 - 0xFEFF: Not usable
 		0xFF00 - 0xFF7F: Screen I/0 Ports
@@ -37,14 +37,18 @@ private:
 
 	*/
 	uint8_t Memory[65536];
-	uint8_t MBC = 0;
-	Cartridge &cartridge;
+	MBC* mbc;
+	Cartridge* cart;
 	CPU &cpu;
 
-	void swapROMBank(uint8_t bank);
-	void swapRAMBank(uint8_t bank);
+
+	//void swapROMBank(uint8_t bank);
+	//void swapRAMBank(uint8_t bank);
 public:
-	MMU();
+	MMU(CPU &cp,MBC *bankcontrol);
+	inline uint8_t *returnMemref(){return &Memory;}
+	bool RAM_En = false;
+	void MMU::SetupCartridge(cartridge* icart)
 	//Read
 	uint8_t read(uint16_t addr);
 	uint16_t read16(uint16_t addr);
@@ -52,12 +56,11 @@ public:
 	uint16_t read16h(uint8_t addr);
 	uint8_t &ref(uint16_t addr){return Memory[addr];}
 	uint8_t &refh(uint16_t addr){return Memory[0xFF00 + addr];}
-	//Write
+	//Write (calls MBC control if writing to ROM)
 	void write(uint16_t addr,uint8_t data);
 	void writeh(uint8_t addr,uint8_t data);
-	void write16(uint16_t addr,uint16_t data);
-	void write16h(uint8_t addr,uint16_t data);
 	//Utility
+	
 	inline uint8_t readbit(uint8_t num,uint8_t index){
 		return (num >> index) & 0x1;
 	}
