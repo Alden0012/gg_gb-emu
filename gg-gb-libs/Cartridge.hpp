@@ -109,7 +109,7 @@ class Cartridge{
 			1- 2   kb / 1 bank
 			2- 8   kb / 1 bank
 			3- 32  kb / 4 banks
-			4- 128 kb / 16 banks
+			4- 128 kb / 16 banks ( i feel like nothing uses this )
 
 	
 

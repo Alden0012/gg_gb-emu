@@ -47,7 +47,7 @@ private:
 public:
 	MMU(CPU &cp,MBC *bankcontrol);
 	inline uint8_t *returnMemref(){return &Memory;}
-	bool RAM_En = false;
+	bool RAM_En = false; //Use MBC to control this;
 	void MMU::SetupCartridge(cartridge* icart)
 	//Read
 	uint8_t read(uint16_t addr);
