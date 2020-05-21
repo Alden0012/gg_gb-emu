@@ -4,7 +4,7 @@
 MMU::MMU(CPU &cp){
 	cpu = cp;
 }
-MMU::SetupCartridge(cartridge* icart){
+void MMU::SetupCartridge(cartridge* icart){
 	cart = icart;
 	mbc = cart->InitMBC(cart);
 }
