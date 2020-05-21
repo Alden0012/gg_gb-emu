@@ -2,6 +2,7 @@
 #define MBC_HPP
 #include "Cartridge.hpp"
 #include "MMU.hpp"
+
 class MBC{
 private:
 	MMU* immu;

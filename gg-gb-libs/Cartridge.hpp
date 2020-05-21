@@ -10,9 +10,6 @@ class Cartridge{
 	/*
 	enjoy reading all of this :)
 
-	Todo: Implement MBC here or in MMU
-
-
 	Internal Information Area: [0100 - 014F]
 		0100-0103: Begin Code execution point
 		0104-0133: Scrolling Nintendo graphic
@@ -133,10 +130,7 @@ public:
 	inline uint8_t getROM(){return cart_rom;}
 	inline uint8_t getROM_Size(){return rom_size;}
 	inline uint8_t getRAM_Size(){return ram_Size;}
-	//inline void getCart_Type(){return Cart_Type;}
 
-	// void swapROMBank(uint8_t bank);
-	// void swapRAMBank(uint8_t bank);
 
 
 

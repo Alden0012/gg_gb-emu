@@ -44,48 +44,65 @@ private:
 	pc (Program Counter)
 
 	*/
-	union{
-		struct{
-			Flags f;
-			uint8_t a;
-		};
-	uint16_t af; // low byte is flags , high byte is accumulator
-	};
+	// union{
+	// 	struct{
+	// 		Flags f;
+	// 		uint8_t a;
+	// 	};
+	// uint16_t af; // low byte is flags , high byte is accumulator
+	// };
 
-	union{
-		struct{
-			uint8_t c;
-			uint8_t b;
-		};
-	uint16_t bc; 
-	};
+	// union{
+	// 	struct{
+	// 		uint8_t c;
+	// 		uint8_t b;
+	// 	};
+	// uint16_t bc; 
+	// };
 	
-	union{
-		struct{
-			uint8_t e;
-			uint8_t d;
-		};
-	uint16_t de; 
-	};
+	// union{
+	// 	struct{
+	// 		uint8_t e;
+	// 		uint8_t d;
+	// 	};
+	// uint16_t de; 
+	// };
 	
-	union{
-		struct{
-			uint8_t l;
-			uint8_t h;
-		};
-	uint16_t hl; 
-	};
+	// union{
+	// 	struct{
+	// 		uint8_t l;
+	// 		uint8_t h;
+	// 	};
+	// uint16_t hl; 
+	// };
 	
+	uint16_t af, bc, de, hl; 
 	uint16_t sp;
-	uint8_t &IF = MMU.refh(0x0f); // Interrupt Register
-	uint8_t &IE = MMU.refh(0xff); // Interrupt Enable Register
+	uint8_t &IF; // Interrupt Register
+	uint8_t &IE; // Interrupt Enable Register
 	uint16_t pc;
-	
+	MMU* mmu;
 	//Todo: Add basic instructions
 public:
-	void tick();// reads opcode,decodes using switch case, executes instruction, increments PC.
+	CPU();
+
+	unsigned tick();// reads opcode,decodes using switch case, executes instruction, increments PC.
+	unsigned CBExec(); // if the opcode was 0xCB, the next instruction byte is looked up from a seperate table dont forget to pc step +2 during tick.
+	void interrupt_check();
+	inline void attachMem(MMU* immu){
+		mmu = immu;
+		IF = mmu.refh(0x0f);
+		IE = mmu.refh(0xff);
+	}
 
 
+	//helper for opcodes
+	void CPU::UbAdd(uint16_t *reg x,uint8_t n,bool carry);
+	void CPU::LbAdd(uint16_t *reg x,uint8_t n, bool carry);
+	void set_flag_zero(bool set);
+	void set_flag_subtract(bool set);
+	void set_flag_hcarry(bool set);
+	void set_flag_carry(bool set);
 
 
 
