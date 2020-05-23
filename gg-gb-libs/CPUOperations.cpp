@@ -31,7 +31,7 @@ void CPU::UbAdd(uint16_t & x,const uint8_t n,const bool c){
 	ub += n + (int)carry;
 	x = (0x00FF & x) + (ub << 8);
 	
-	if (x == 0){
+	if (ub == 0){
 		set_flag_zero(1);
 
 	}else{set_flag_zero(0);}
@@ -49,7 +49,7 @@ void CPU::UbSub(uint16_t & x,const uint8_t n,const bool c){
 	ub -= n + (int)carry;
 	x = (0x00FF & x) + (ub << 8);
 	
-	if (x == 0){
+	if (ub == 0){
 		set_flag_zero(1);
 
 	}else{set_flag_zero(0);}
@@ -69,7 +69,7 @@ void CPU::LbSub(uint16_t & x,const uint8_t n,const bool c){
 	lb -= n + (int)carry;
 	lb &= 0x00FF;
 	x = (0xFF00 & x) | lb;
-	if (x == 0){
+	if (lb == 0){
 		set_flag_zero(1);
 
 	}else{set_flag_zero(0);}
@@ -87,7 +87,7 @@ void CPU::LbAdd(uint16_t &x,const uint8_t n,const bool c){
 	lb += n + (int)carry;
 	lb &= 0x00FF;
 	x = (0xFF00 & x) | lb;
-	if (x == 0){
+	if (lb == 0){
 		set_flag_zero(1);
 
 	}else{set_flag_zero(0);}
@@ -104,4 +104,41 @@ void CPU::AddtoHL(const uint16_t &reg){
 	hl += reg;
 
 }
+void ANDa(const uint8_t byte){
+	af &= (byte << 8) + 0x00FF;
+	set_flag_zero(af >> 8 == 0);
+	set_flag_hcarry(1);
+	set_flag_carry(0);
+	set_flag_subtract(0);
+}
+void ORa(const uint8_t byte){
+	af |= (byte << 8) + 0x00FF;
+	set_flag_zero(af >> 8 == 0);
+	set_flag_hcarry(1);
+	set_flag_carry(0);
+	set_flag_subtract(0);
+}
+void XORa(const uint8_t byte){
+	af ^= (byte << 8) + 0x00FF;
+	set_flag_zero(af >> 8 == 0);
+	set_flag_hcarry(1);
+	set_flag_carry(0);
+	set_flag_subtract(0);
+}
+void CPa(const uint8_t byte){
+	uint8_t ub = (af >> 8);
+	bool carry = c && get_flag_carry(); 
+	if(n != 1){
+		set_flag_carry(ub < (carry + n));
+		set_flag_hcarry((n & 0x0F + (int)carry) > ub & 0x0F );
+	}else{
+		set_flag_hcarry((n & 0x0F + (int)carry) > ub & 0x0F );
+	}
+	ub -= n + (int)carry;
+		
+	if (ub == 0){
+		set_flag_zero(1);
 
+	}else{set_flag_zero(0);}
+	set_flag_subtract(1);
+}
