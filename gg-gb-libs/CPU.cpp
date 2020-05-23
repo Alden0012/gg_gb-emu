@@ -204,7 +204,357 @@ unsigned CPU::tick(){
 			mmu.write(addr,sp & 0x00FF);
 			cycles += 20;
 			pc += 3;
+			break;
+		case 0x06://b = u8
+			bc &= 0x00FF;
+			bc |= ((mmu.read(pc+1)) << 8);
+			cycles += 8;
+			pc += 2;
+			break;
+		case 0x16://d = u8
+			de &= 0x00FF;
+			de |= ((mmu.read(pc+1)) << 8);
+			cycles += 8;
+			pc += 2;
+			break;
+		case 0x26://h = u8
+			hl &= 0x00FF;
+			hl |= ((mmu.read(pc+1)) << 8);
+			cycles += 8;
+			pc += 2;
+			break;
+		case 0x36://(hl) = u8
+			mmu.write(hl,mmu.read(pc+1));
+			cycles += 12;
+			pc += 2;
+			break;
+		case 0x0E://c = u8
+			bc = bc & 0xFF00 + mmu.read(pc+1);
+			cycles += 8;
+			pc += 2;
+			break;
+		case 0x1E://e = u8
+			de = de & 0xFF00 + mmu.read(pc+1);
+			cycles += 8;
+			pc += 2;
+			break;
+		case 0x2E://l = u8
+			hl = hl & 0xFF00 + mmu.read(pc+1);
+			cycles += 8;
+			pc += 2;
+			break;
+		case 0x3E://a = u8
+			af = af & 0x00FF + (mmu.read(pc+1) << 8);
+			cycles += 8;
+			pc += 2;
+			break;
+		//load inst 0x40 - 0x7F
+		case 0x40: case 0x49: case 0x52: case 0x58: case 0x64: case 0x6D: case 0x7F:
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x41:
+			bc = bc << 8 + (bc & 0x00FF);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x42:
+			bc = (de & 0xFF00) + (bc & 0x00FF);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x43:
+			bc = de << 8 + (bc & 0x00FF);
+			cycles += 4;
+			pc += 1;
+			break;	
+		case 0x44:
+			bc = (hl & 0xFF00) + (bc & 0x00FF);	
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x45:
+			bc = hl << 8 + (bc & 0x00FF);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x46:
+			bc = (mmu.read(hl) << 8) + (bc & 0x00FF);
+			cycles += 8;
+			pc += 1;
+			break;
+		case 0x47:
+			bc = (af & 0xFF00) + (bc & 0x00FF);	
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x48:
+			bc = (bc >> 8) + (bc & 0xFF00);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x4A:
+			bc = (de >> 8) + (bc & 0xFF00);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x4B:
+			bc = (de & 0x00FF) + (bc & 0xFF00);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x4C:
+			bc = (hl >> 8) + (bc & 0xFF00);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x4D:
+			bc = (hl & 0x00FF) + (bc & 0xFF00);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x4E:
+			bc = (bc & 0xFF00) + mmu.read(hl);
+			cycles += 8;
+			pc += 1;
+			break;
+		case 0x4D:
+			bc = (af >> 8) + (bc & 0xFF00);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x50: //yubi yubi
+			de = (bc & 0xFF00) + (de & 0x00FF);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x51:// ub lb
+			de = bc << 8 + (de & 0x00FF);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x53:
+			de = de << 8 + (de & 0x00FF);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x54:
+			de = (hl & 0xFF00) + (de & 0x00FF);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x55:
+			de = hl << 8 + (de & 0x00FF);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x56:// ub read u8
+			de = (mmu.read(hl) << 8) + (de & 0x00FF);
+			cycles += 8;
+			pc += 1;
+			break;
+		case 0x57:
+			de = (af & 0xFF00) + (de & 0x00FF);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x58:// lb ub
+			de = (bc >> 8) + (de & 0xFF00);
+			cycles += 4;
+			pc += 1;
+			break;	
+		case 0x59:// lb lb
+			de = (bc & 0x00FF) + (de & 0xFF00);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x5A:
+			de = (de >> 8) + (de & 0xFF00);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x5C:
+			de = (hl >> 8) + (de & 0xFF00);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x5D:
+			de = (hl & 0x00FF) + (de & 0xFF00);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x5E://lb read u8
+			de = (de & 0xFF00) + mmu.read(hl);
+			cycles += 8;
+			pc += 1;
+			break;
+		case 0x5F:
+			de = (af >> 8) + (de & 0xFF00);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x60:
+			hl = (bc & 0xFF00) + (hl & 0x00FF);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x61:
+			hl = bc << 8 + (hl & 0x00FF);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x62:
+			hl = (de & 0xFF00) + (hl & 0x00FF);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x63:
+			hl = de << 8 + (hl & 0x00FF);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x65:
+			hl = hl << 8 + (hl & 0x00FF);
+			cycles += 4;
+			pc += 1;
+			break; 
+		case 0x66:
+			hl = (mmu.read(hl) << 8) + (hl & 0x00FF);
+			cycles += 8;
+			pc += 1;
+			break;
+		case 0x67:
+			hl = (af & 0xFF00) + (hl & 0x00FF);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x68:
+			hl = (bc >> 8) + (hl & 0xFF00);
+			cycles += 4;
+			pc += 1;
+			break;	
+		case 0x69:
+			hl = (bc & 0x00FF) + (hl & 0xFF00);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x6A:
+			hl = (de >> 8) + (hl & 0xFF00);
+			cycles += 4;
+			pc += 1;
+			break;	
+		case 0x6B:
+			hl = (de & 0x00FF) + (hl & 0xFF00);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x6C:
+			hl = (hl >> 8) + (hl & 0xFF00);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x6E:
+			hl = (hl & 0xFF00) + mmu.read(hl);
+			cycles += 8;
+			pc += 1;
+			break;
+		case 0x6F:
+			hl = (af >> 8) + (hl & 0xFF00);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x70:
+			mmu.write(hl,bc >> 8);
+			cycles += 8;
+			pc += 1;
+			break;
+		case 0x71:
+			mmu.write(hl,bc & 0x00FF);
+			cycles += 8;
+			pc += 1;
+			break;
+		case 0x72:
+			mmu.write(hl,de >> 8);
+			cycles += 8;
+			pc += 1;
+			break;
+		case 0x73:
+			mmu.write(hl,de & 0x00FF);
+			cycles += 8;
+			pc += 1;
+			break;
+		case 0x74:
+			mmu.write(hl,hl >> 8);
+			cycles += 8;
+			pc += 1;
+			break;
+		case 0x75:
+			mmu.write(hl,hl & 0x00FF);
+			cycles += 8;
+			pc += 1;
+			break;
+		case 0x77:
+			mmu.write(hl,af >> 8);
+			cycles += 8;
+			pc += 1;
+			break;
+		case 0x78:
+			af = (bc & 0xFF00) + (af & 0x00FF);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x79:
+			af = bc << 8 + (af & 0x00FF);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x7A:
+			af = (de & 0xFF00) + (af & 0x00FF);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x7B:
+			af = de << 8 + (af & 0x00FF);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x7C:
+			af = (hl & 0xFF00) + (af & 0x00FF);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x7D:
+			af = hl << 8 + (af & 0x00FF);
+			cycles += 4;
+			pc += 1;
+			break; 
+		case 0x7E:
+			af = (mmu.read(hl) << 8) + (af & 0x00FF);
+			cycles += 8;
+			pc += 1;
+			break;
+		// loads done bois!
+		// ADD / SUB instructions
 		
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
