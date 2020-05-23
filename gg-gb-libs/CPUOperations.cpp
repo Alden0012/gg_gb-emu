@@ -18,6 +18,15 @@ void CPU::set_flag_carry(bool set){
 bool CPU::get_flag_carry(){
 	return ((af >> 4) & 0x1);
 }
+bool CPU::get_flag_zero(){
+	return ((af >> 7)& 0x1);
+}
+bool CPU::get_flag_subtract(){
+	return((af>>6)&0x1);
+}
+bool CPU::get_flag_hcarry(){
+	return((af>>5)&0x1);
+}
 void CPU::UbAdd(uint16_t & x,const uint8_t n,const bool c){
 	uint8_t ub = (x >> 8);
 
@@ -141,4 +150,11 @@ void CPU::CPa(const uint8_t n){
 
 	}else{set_flag_zero(0);}
 	set_flag_subtract(1);
+}
+void CPU::rst(const uint16_t addr){
+	sp--;
+	mmu->write(sp,pc>>8);
+	sp--;
+	mmu->write(sp,pc & 0x00FF);
+	pc = addr;
 }

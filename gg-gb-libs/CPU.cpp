@@ -10,7 +10,7 @@ unsigned CPU::tick(){
 	unsigned cycles = 0;
 	interrupt_check();
 
-	uint8_t opcode = mmu.read(pc);
+	uint8_t opcode = mmu->read(pc);
 	switch(opcode){
 		// Instruction Decoding!
 		
@@ -19,43 +19,43 @@ unsigned CPU::tick(){
 			pc += 1;
 			break;
 		case 0x01: //LD BC d16
-			bc = mmu.read16(pc+1);
+			bc = mmu->read16(pc+1);
 			cycles += 12;
 			pc += 3;
 			break;
 		case 0x11: // LD DE d16
-			de = mmu.read16(pc+1);
+			de = mmu->read16(pc+1);
 			cycles += 12;
 			pc += 3;
 			break;
 		case 0x21: // LD HL d16
-			hl = mmu.read16(pc+1);
+			hl = mmu->read16(pc+1);
 			cycles += 12;
 			pc += 3;
 			break;
 		case 0x31: // LD SP d16
-			sp = mmu.read16(pc+1);
+			sp = mmu->read16(pc+1);
 			cycles += 12;
 			pc += 3;
 			break;
 		case 0x02:// LD (BC),A
-			mmu.write(bc,(af >> 8));
+			mmu->write(bc,(af >> 8));
 			cycles += 8;
 			pc += 1;
 			break;
 		case 0x12:// LD (DE),A
-			mmu.write(de,(af >> 8));
+			mmu->write(de,(af >> 8));
 			cycles += 8;
 			pc += 1;
 			break;
 		case 0x22:// LD (HL++),A
-			mmu.write(hl,(af >> 8));
+			mmu->write(hl,(af >> 8));
 			hl++;
 			cycles += 8;
 			pc += 1;
 			break;
 		case 0x32:// LD (HL--),A
-			mmu.write(hl,(af >> 8));
+			mmu->write(hl,(af >> 8));
 			hl--;
 			cycles += 8;
 			pc += 1;
@@ -97,14 +97,14 @@ unsigned CPU::tick(){
 			break;
 		case 0x34:// INC (HL)
 		{
-			uint8_t iByte = mmu.read(hl);
+			uint8_t iByte = mmu->read(hl);
 			set_flag_hcarry((iByte & 0x0F + 1) > 0x0F);
 			set_flag_carry((uint16_t)(iByte + 1) > 0xFF);
 			set_flag_subtract(0);
 			iByte++;
 			set_flag_zero((bool)iByte);
 
-			mmu.write(hl,iByte);
+			mmu->write(hl,iByte);
 			cycles += 12;
 			pc += 1;
 			break;
@@ -166,14 +166,14 @@ unsigned CPU::tick(){
 			break;
 		case 0x35://DEC (HL)
 			{
-			uint8_t iByte = mmu.read(hl);
+			uint8_t iByte = mmu->read(hl);
 			set_flag_hcarry(1 > iByte & 0x0F);
 			set_flag_carry(iByte < 1);
 			set_flag_subtract(0);
 			iByte++;
 			set_flag_zero((bool)iByte);
 
-			mmu.write(hl,iByte);
+			mmu->write(hl,iByte);
 			cycles += 12;
 			pc += 1;
 			break;
@@ -199,52 +199,52 @@ unsigned CPU::tick(){
 			pc +=1;
 			break;
 		case 0x08://write 16-bit sp to address given in operand
-			addr = mmu.read16(pc+1);
-			mmu.write(addr+1,sp >> 8);
-			mmu.write(addr,sp & 0x00FF);
+			addr = mmu->read16(pc+1);
+			mmu->write(addr+1,sp >> 8);
+			mmu->write(addr,sp & 0x00FF);
 			cycles += 20;
 			pc += 3;
 			break;
 		case 0x06://b = u8
 			bc &= 0x00FF;
-			bc |= ((mmu.read(pc+1)) << 8);
+			bc |= ((mmu->read(pc+1)) << 8);
 			cycles += 8;
 			pc += 2;
 			break;
 		case 0x16://d = u8
 			de &= 0x00FF;
-			de |= ((mmu.read(pc+1)) << 8);
+			de |= ((mmu->read(pc+1)) << 8);
 			cycles += 8;
 			pc += 2;
 			break;
 		case 0x26://h = u8
 			hl &= 0x00FF;
-			hl |= ((mmu.read(pc+1)) << 8);
+			hl |= ((mmu->read(pc+1)) << 8);
 			cycles += 8;
 			pc += 2;
 			break;
 		case 0x36://(hl) = u8
-			mmu.write(hl,mmu.read(pc+1));
+			mmu->write(hl,mmu->read(pc+1));
 			cycles += 12;
 			pc += 2;
 			break;
 		case 0x0E://c = u8
-			bc = bc & 0xFF00 + mmu.read(pc+1);
+			bc = bc & 0xFF00 + mmu->read(pc+1);
 			cycles += 8;
 			pc += 2;
 			break;
 		case 0x1E://e = u8
-			de = de & 0xFF00 + mmu.read(pc+1);
+			de = de & 0xFF00 + mmu->read(pc+1);
 			cycles += 8;
 			pc += 2;
 			break;
 		case 0x2E://l = u8
-			hl = hl & 0xFF00 + mmu.read(pc+1);
+			hl = hl & 0xFF00 + mmu->read(pc+1);
 			cycles += 8;
 			pc += 2;
 			break;
 		case 0x3E://a = u8
-			af = af & 0x00FF + (mmu.read(pc+1) << 8);
+			af = af & 0x00FF + (mmu->read(pc+1) << 8);
 			cycles += 8;
 			pc += 2;
 			break;
@@ -279,7 +279,7 @@ unsigned CPU::tick(){
 			pc += 1;
 			break;
 		case 0x46:
-			bc = (mmu.read(hl) << 8) + (bc & 0x00FF);
+			bc = (mmu->read(hl) << 8) + (bc & 0x00FF);
 			cycles += 8;
 			pc += 1;
 			break;
@@ -314,7 +314,7 @@ unsigned CPU::tick(){
 			pc += 1;
 			break;
 		case 0x4E:
-			bc = (bc & 0xFF00) + mmu.read(hl);
+			bc = (bc & 0xFF00) + mmu->read(hl);
 			cycles += 8;
 			pc += 1;
 			break;
@@ -349,7 +349,7 @@ unsigned CPU::tick(){
 			pc += 1;
 			break;
 		case 0x56:// ub read u8
-			de = (mmu.read(hl) << 8) + (de & 0x00FF);
+			de = (mmu->read(hl) << 8) + (de & 0x00FF);
 			cycles += 8;
 			pc += 1;
 			break;
@@ -384,7 +384,7 @@ unsigned CPU::tick(){
 			pc += 1;
 			break;
 		case 0x5E://lb read u8
-			de = (de & 0xFF00) + mmu.read(hl);
+			de = (de & 0xFF00) + mmu->read(hl);
 			cycles += 8;
 			pc += 1;
 			break;
@@ -419,7 +419,7 @@ unsigned CPU::tick(){
 			pc += 1;
 			break; 
 		case 0x66:
-			hl = (mmu.read(hl) << 8) + (hl & 0x00FF);
+			hl = (mmu->read(hl) << 8) + (hl & 0x00FF);
 			cycles += 8;
 			pc += 1;
 			break;
@@ -454,7 +454,7 @@ unsigned CPU::tick(){
 			pc += 1;
 			break;
 		case 0x6E:
-			hl = (hl & 0xFF00) + mmu.read(hl);
+			hl = (hl & 0xFF00) + mmu->read(hl);
 			cycles += 8;
 			pc += 1;
 			break;
@@ -464,37 +464,37 @@ unsigned CPU::tick(){
 			pc += 1;
 			break;
 		case 0x70:
-			mmu.write(hl,bc >> 8);
+			mmu->write(hl,bc >> 8);
 			cycles += 8;
 			pc += 1;
 			break;
 		case 0x71:
-			mmu.write(hl,bc & 0x00FF);
+			mmu->write(hl,bc & 0x00FF);
 			cycles += 8;
 			pc += 1;
 			break;
 		case 0x72:
-			mmu.write(hl,de >> 8);
+			mmu->write(hl,de >> 8);
 			cycles += 8;
 			pc += 1;
 			break;
 		case 0x73:
-			mmu.write(hl,de & 0x00FF);
+			mmu->write(hl,de & 0x00FF);
 			cycles += 8;
 			pc += 1;
 			break;
 		case 0x74:
-			mmu.write(hl,hl >> 8);
+			mmu->write(hl,hl >> 8);
 			cycles += 8;
 			pc += 1;
 			break;
 		case 0x75:
-			mmu.write(hl,hl & 0x00FF);
+			mmu->write(hl,hl & 0x00FF);
 			cycles += 8;
 			pc += 1;
 			break;
 		case 0x77:
-			mmu.write(hl,af >> 8);
+			mmu->write(hl,af >> 8);
 			cycles += 8;
 			pc += 1;
 			break;
@@ -529,37 +529,37 @@ unsigned CPU::tick(){
 			pc += 1;
 			break; 
 		case 0x7E:
-			af = (mmu.read(hl) << 8) + (af & 0x00FF);
+			af = (mmu->read(hl) << 8) + (af & 0x00FF);
 			cycles += 8;
 			pc += 1;
 			break;
 		case 0xE0:
-			mmu.write((0xFF00+mmu.read(pc+1)),af >> 8);
+			mmu->write((0xFF00+mmu->read(pc+1)),af >> 8);
 			cycles += 12;
 			pc += 2;
 			break;
 		case 0xF0:
-			af = (mmu.read((0xFF00+mmu.read(pc+1))) << 8) + (af & 0x00FF);
+			af = (mmu->read((0xFF00+mmu->read(pc+1))) << 8) + (af & 0x00FF);
 			cycles += 12;
 			pc += 2;
 			break;
 		case 0xE2:
-			mmu.write((0xFF00+(bc&0x00FF)),af >> 8);
+			mmu->write((0xFF00+(bc&0x00FF)),af >> 8);
 			cycles += 8;
 			pc += 2;
 			break;
 		case 0xF2:
-			af = (mmu.read((0xFF00+(bc&0x00FF))) << 8) + (af & 0x00FF);
+			af = (mmu->read((0xFF00+(bc&0x00FF))) << 8) + (af & 0x00FF);
 			cycles += 8;
 			pc += 2;
 			break;
 		case 0xEA:
-			mmu.write((mmu.read(pc+2)+mmu.read(pc+1)),af >> 8);
+			mmu->write((mmu->read(pc+2)+mmu->read(pc+1)),af >> 8);
 			cycles += 16;
 			pc += 3;
 			break;
 		case 0xFA:
-			af = (mmu.read((mmu.read(pc+2)+mmu.read(pc+1))) << 8) + (af & 0x00FF);
+			af = (mmu->read((mmu->read(pc+2)+mmu->read(pc+1))) << 8) + (af & 0x00FF);
 			cycles += 16;
 			pc += 3;
 			break;
@@ -596,7 +596,7 @@ unsigned CPU::tick(){
 			pc += 1;
 			break;
 		case 0x86:
-			UbAdd(&af,mem.read(hl),0);
+			UbAdd(&af,mmu->read(hl),0);
 			cycles += 8;
 			pc += 1;
 			break;
@@ -636,7 +636,7 @@ unsigned CPU::tick(){
 			pc += 1;
 			break;
 		case 0x8E:
-			UbAdd(&af,mem.read(hl),1);
+			UbAdd(&af,mmu->read(hl),1);
 			cycles += 8;
 			pc += 1;
 			break;
@@ -676,7 +676,7 @@ unsigned CPU::tick(){
 			pc += 1;
 			break;
 		case 0x96:
-			UbSub(&af,mem.read(hl),0);
+			UbSub(&af,mmu->read(hl),0);
 			cycles += 8;
 			pc += 1;
 			break;
@@ -716,7 +716,7 @@ unsigned CPU::tick(){
 			pc += 1;
 			break;
 		case 0x9E:
-			UbSub(&af,mem.read(hl),1);
+			UbSub(&af,mmu->read(hl),1);
 			cycles += 8;
 			pc += 1;
 			break;
@@ -756,8 +756,8 @@ unsigned CPU::tick(){
 			pc += 1;
 			break;
 		case 0xA6:
-			ANDa(mem.read(hl));
-			cycles += 4;
+			ANDa(mmu->read(hl));
+			cycles += 8;
 			pc += 1;
 			break;
 		case 0xA7:
@@ -796,8 +796,8 @@ unsigned CPU::tick(){
 			pc += 1;
 			break;		
 		case 0xAE:
-			XORa(mem.read(hl));
-			cycles += 4;
+			XORa(mmu->read(hl));
+			cycles += 8;
 			pc += 1;
 			break;	
 		case 0xAF:
@@ -836,8 +836,8 @@ unsigned CPU::tick(){
 			pc += 1;
 			break;
 		case 0xB6:
-			ORa(mem.read(hl));
-			cycles += 4;
+			ORa(mmu->read(hl));
+			cycles += 8;
 			pc += 1;
 			break;
 		case 0xB7:
@@ -876,8 +876,8 @@ unsigned CPU::tick(){
 			pc += 1;
 			break;
 		case 0xB8:
-			CPa(mem.read(hl));
-			cycles += 4;
+			CPa(mmu->read(hl));
+			cycles += 8;
 			pc += 1;
 			break;
 		case 0xB9:
@@ -885,7 +885,156 @@ unsigned CPU::tick(){
 			cycles += 4;
 			pc += 1;
 			break;
-		
+		case 0xCE:
+			UbAdd(&af,mmu->read(pc+1),1);
+			cycles += 8;
+			pc += 2;
+			break;
+		case 0xDE:
+			UbSub(&af,mmu->read(pc+1),1);
+			cycles += 8;
+			pc += 2;
+			break;
+		case 0xEE:
+			XORa(mmu->read(pc+1));
+			cycles += 8;
+			pc += 2;
+			break;
+		case 0xFE:
+			CPa(mmu->read(pc+1));
+			cycles += 8;
+			pc += 2;
+			break;
+		//jumps
+		case 0x18:
+			pc = mmu->read(pc+1);
+			cycles += 12;
+			pc += 2;
+			break;
+		case 0xC3:
+			pc = mmu->read(pc+2) | mmu->read(pc+1);
+			cycles += 16;
+			pc += 3;
+			break;
+		case 0x28:
+			if(get_flag_zero()){
+				pc = mmu->read(pc+1);
+				cycles += 12;
+			}else{
+				cycles += 8;
+			}
+			pc += 2;
+			break;
+		case 0x20:
+			if(!get_flag_zero()){
+				pc = mmu->read(pc+1);
+				cycles += 12;
+			}else{
+				cycles += 8;
+			}
+			pc += 2;
+			break;
+		case 0x38:
+			if(get_flag_carry()){
+				pc = mmu->read(pc+1);
+				cycles += 12;
+			}else{
+				cycles += 8;
+			}
+			pc += 2;
+			break;
+		case 0x30:
+			if(!get_flag_carry()){
+				pc = mmu->read(pc+1);
+				cycles += 12;
+			}else{
+				cycles += 8;
+			}
+			pc += 2;
+			break;
+		case 0xCA:
+			if(get_flag_zero())
+				pc = mmu->read(pc+2) | mmu->read(pc+1);
+				cycles += 16;
+			else{
+				cycles += 12;
+			}
+			pc += 3;
+			break;
+		case 0xDA:
+			if(get_flag_carry())
+				pc = mmu->read(pc+2) | mmu->read(pc+1);
+				cycles += 16;
+			else{
+				cycles += 12;
+			}
+			pc += 3;
+			break;
+		case 0xC2:
+			if(!get_flag_zero())
+				pc = mmu->read(pc+2) | mmu->read(pc+1);
+				cycles += 16;
+			else{
+				cycles += 12;
+			}
+			pc += 3;
+			break;
+		case 0xD2:
+			if(!get_flag_carry())
+				pc = mmu->read(pc+2) | mmu->read(pc+1);
+				cycles += 16;
+			else{
+				cycles += 12;
+			}
+			pc += 3;
+			break;
+		//resets
+		case 0xCF:
+			rst(0x08);
+			cycles += 16;
+			pc += 1;
+			break;
+		case 0xDF:
+			rst(0x18);
+			cycles += 16;
+			pc += 1;
+			break;
+		case 0xEF:
+			rst(0x28);
+			cycles += 16;
+			pc += 1;
+			break;
+		case 0xFF:
+			rst(0x38);
+			cycles += 16;
+			pc += 1;
+			break;
+		case 0xC7:
+			rst(0x00);
+			cycles += 16;
+			pc += 1;
+			break;		
+		case 0xD7:
+			rst(0x10);
+			cycles += 16;
+			pc += 1;
+			break;
+		case 0xE7:
+			rst(0x20);
+			cycles += 16;
+			pc += 1;
+			break;
+		case 0xF7:
+			rst(0x30);
+			cycles += 16;
+			pc += 1;
+			break;
+
+
+
+
+
+
 
 
 
