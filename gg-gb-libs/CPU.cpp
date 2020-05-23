@@ -533,8 +533,203 @@ unsigned CPU::tick(){
 			cycles += 8;
 			pc += 1;
 			break;
+		case 0xE0:
+			mmu.write((0xFF00+mmu.read(pc+1)),af >> 8);
+			cycles += 12;
+			pc += 2;
+			break;
+		case 0xF0:
+			af = (mmu.read((0xFF00+mmu.read(pc+1))) << 8) + (af & 0x00FF);
+			cycles += 12;
+			pc += 2;
+			break;
+		case 0xE2:
+			mmu.write((0xFF00+(bc&0x00FF)),af >> 8);
+			cycles += 8;
+			pc += 2;
+			break;
+		case 0xF2:
+			af = (mmu.read((0xFF00+(bc&0x00FF))) << 8) + (af & 0x00FF);
+			cycles += 8;
+			pc += 2;
+			break;
+		case 0xEA:
+			mmu.write((mmu.read(pc+2)+mmu.read(pc+1)),af >> 8);
+			cycles += 16;
+			pc += 3;
+			break;
+		case 0xFA:
+			af = (mmu.read((mmu.read(pc+2)+mmu.read(pc+1))) << 8) + (af & 0x00FF);
+			cycles += 16;
+			pc += 3;
+			break;
 		// loads done bois!
 		// ADD / SUB instructions
+		case 0x80:
+			UbAdd(&af,bc >> 8,0);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x81:
+			UbAdd(&af,bc & 0x00FF,0);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x82:
+			UbAdd(&af,de >> 8,0);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x83:
+			UbAdd(&af,de & 0x00FF,0);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x84:
+			UbAdd(&af,hl >> 8,0);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x85:
+			UbAdd(&af,hl & 0x00FF,0);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x86:
+			UbAdd(&af,mem.read(hl),0);
+			cycles += 8;
+			pc += 1;
+			break;
+		case 0x87:
+			UbAdd(&af,af >> 8,0);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x88:
+			UbAdd(&af,bc >> 8,1);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x89:
+			UbAdd(&af,bc & 0x00FF,1);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x8A:
+			UbAdd(&af,de >> 8,1);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x8B:
+			UbAdd(&af,de & 0x00FF,1);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x8C:
+			UbAdd(&af,hl >> 8,1);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x8D:
+			UbAdd(&af,hl & 0x00FF,1);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x8E:
+			UbAdd(&af,mem.read(hl),1);
+			cycles += 8;
+			pc += 1;
+			break;
+		case 0x8F:
+			UbAdd(&af,af >> 8,1);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x90:
+			UbSub(&af,bc >> 8,0);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x91:
+			UbSub(&af,bc & 0x00FF,0);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x92:
+			UbSub(&af,de >> 8,0);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x93:
+			UbSub(&af,de & 0x00FF,0);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x94:
+			UbSub(&af,hl >> 8,0);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x95:
+			UbSub(&af,hl & 0x00FF,0);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x96:
+			UbSub(&af,mem.read(hl),0);
+			cycles += 8;
+			pc += 1;
+			break;
+		case 0x97:
+			UbSub(&af,af >> 8,0);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x98:
+			UbSub(&af,bc >> 8,1);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x99:
+			UbSub(&af,bc & 0x00FF,1);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x9A:
+			UbSub(&af,de >> 8,1);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x9B:
+			UbSub(&af,de & 0x00FF,1);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x9C:
+			UbSub(&af,hl >> 8,1);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x9D:
+			UbSub(&af,hl & 0x00FF,1);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x9E:
+			UbSub(&af,mem.read(hl),1);
+			cycles += 8;
+			pc += 1;
+			break;
+		case 0x9F:
+			UbSub(&af,af >> 8,1);
+			cycles += 4;
+			pc += 1;
+			break;
+			
+
+
+
+
 		
 
 
