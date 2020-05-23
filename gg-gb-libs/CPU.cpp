@@ -725,7 +725,167 @@ unsigned CPU::tick(){
 			cycles += 4;
 			pc += 1;
 			break;
-			
+		case 0xA0:
+			ANDa(bc >> 8);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0xA1:
+			ANDa(bc & 0x00FF);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0xA2:
+			ANDa(de >> 8);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0xA3:
+			ANDa(de & 0x00FF);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0xA4:
+			ANDa(hl >> 8);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0xA5:
+			ANDa(hl & 0x00FF);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0xA6:
+			ANDa(mem.read(hl));
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0xA7:
+			ANDa(af >> 8);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0xA8:
+			XORa(bc >> 8);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0xA9:
+			XORa(bc & 0x00FF);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0xAA:
+			XORa(de >> 8);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0xAB:
+			XORa(de & 0x00FF);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0xAC:
+			XORa(hl >> 8);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0xAD:
+			XORa(hl & 0x00FF);
+			cycles += 4;
+			pc += 1;
+			break;		
+		case 0xAE:
+			XORa(mem.read(hl));
+			cycles += 4;
+			pc += 1;
+			break;	
+		case 0xAF:
+			XORa(af >> 8);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0xB0:
+			ORa(bc >> 8);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0xB1:
+			ORa(bc & 0x00FF);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0xB2:
+			ORa(de >> 8);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0xB3:
+			ORa(de & 0x00FF);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0xB4:
+			ORa(hl >> 8);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0xB5:
+			ORa(hl & 0x00FF);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0xB6:
+			ORa(mem.read(hl));
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0xB7:
+			ORa(af >> 8);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0xB8:
+			CPa(bc >> 8);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0xB9:
+			CPa(bc & 0x00FF);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0xBA:
+			CPa(de >> 8);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0xBB:
+			CPa(de & 0x00FF);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0xB8:
+			CPa(hl >> 8);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0xB9:
+			CPa(hl & 0x00FF);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0xB8:
+			CPa(mem.read(hl));
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0xB9:
+			CPa(af >> 8);
+			cycles += 4;
+			pc += 1;
+			break;
+		
 
 
 

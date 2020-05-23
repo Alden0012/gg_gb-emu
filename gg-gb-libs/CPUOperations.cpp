@@ -104,28 +104,28 @@ void CPU::AddtoHL(const uint16_t &reg){
 	hl += reg;
 
 }
-void ANDa(const uint8_t byte){
-	af &= (byte << 8) + 0x00FF;
+void CPU::ANDa(const uint8_t byte){
+	af &= (byte << 8);
 	set_flag_zero(af >> 8 == 0);
 	set_flag_hcarry(1);
 	set_flag_carry(0);
 	set_flag_subtract(0);
 }
-void ORa(const uint8_t byte){
-	af |= (byte << 8) + 0x00FF;
+void CPU::ORa(const uint8_t byte){
+	af |= (byte << 8);
 	set_flag_zero(af >> 8 == 0);
-	set_flag_hcarry(1);
+	set_flag_hcarry(0);
 	set_flag_carry(0);
 	set_flag_subtract(0);
 }
-void XORa(const uint8_t byte){
-	af ^= (byte << 8) + 0x00FF;
+void CPU::XORa(const uint8_t byte){
+	af ^= (byte << 8);
 	set_flag_zero(af >> 8 == 0);
-	set_flag_hcarry(1);
+	set_flag_hcarry(0);
 	set_flag_carry(0);
 	set_flag_subtract(0);
 }
-void CPa(const uint8_t byte){
+void CPU::CPa(const uint8_t n){
 	uint8_t ub = (af >> 8);
 	bool carry = c && get_flag_carry(); 
 	if(n != 1){
