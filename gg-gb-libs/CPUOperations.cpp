@@ -158,3 +158,25 @@ void CPU::rst(const uint16_t addr){
 	mmu->write(sp,pc & 0x00FF);
 	pc = addr;
 }
+void CPU::push(const uint16 &reg){
+	sp--;
+	mmu->write(sp,reg>>8);
+	sp--;
+	mmu->write(sp,reg & 0x00FF);
+}
+void CPU::pop(uint16 &reg){
+	uint8_t lowbyte = mmu->read(sp);
+	sp++;
+	uint8_t highbyte = mmu->read(sp);
+	sp++;
+	reg = (highbyte << 8) + lowbyte;
+}
+void CPU::ret(){
+	pop(pc);
+}
+void CPU::call(){
+	addr = (mmu->read(pc+2) << 8) + (mmu->read(pc+1));
+	pc += 3;
+	push(&pc);
+	pc = addr;
+}

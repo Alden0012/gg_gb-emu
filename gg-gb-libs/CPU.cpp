@@ -7,11 +7,17 @@ CPU::CPU(){
 	pc = 0x0;//or 0x100 from program execution
 }
 unsigned CPU::tick(){
-	unsigned cycles = 0;
+	
 	interrupt_check();
 
 	uint8_t opcode = mmu->read(pc);
-	switch(opcode){
+
+}
+
+
+unsigned CPU::ExecuteOpcode(uint8_t opcode){
+		unsigned cycles = 0;
+		switch(opcode){
 		// Instruction Decoding!
 		
 		case 0x00: //NOP
@@ -909,12 +915,10 @@ unsigned CPU::tick(){
 		case 0x18:
 			pc = mmu->read(pc+1);
 			cycles += 12;
-			pc += 2;
 			break;
 		case 0xC3:
 			pc = mmu->read(pc+2) | mmu->read(pc+1);
 			cycles += 16;
-			pc += 3;
 			break;
 		case 0x28:
 			if(get_flag_zero()){
@@ -922,8 +926,8 @@ unsigned CPU::tick(){
 				cycles += 12;
 			}else{
 				cycles += 8;
+				pc += 2;
 			}
-			pc += 2;
 			break;
 		case 0x20:
 			if(!get_flag_zero()){
@@ -931,8 +935,9 @@ unsigned CPU::tick(){
 				cycles += 12;
 			}else{
 				cycles += 8;
+				pc += 2;
 			}
-			pc += 2;
+
 			break;
 		case 0x38:
 			if(get_flag_carry()){
@@ -940,8 +945,8 @@ unsigned CPU::tick(){
 				cycles += 12;
 			}else{
 				cycles += 8;
+				pc += 2;
 			}
-			pc += 2;
 			break;
 		case 0x30:
 			if(!get_flag_carry()){
@@ -949,8 +954,8 @@ unsigned CPU::tick(){
 				cycles += 12;
 			}else{
 				cycles += 8;
+				pc += 2;
 			}
-			pc += 2;
 			break;
 		case 0xCA:
 			if(get_flag_zero())
@@ -958,8 +963,8 @@ unsigned CPU::tick(){
 				cycles += 16;
 			else{
 				cycles += 12;
+				pc += 3;
 			}
-			pc += 3;
 			break;
 		case 0xDA:
 			if(get_flag_carry())
@@ -967,8 +972,8 @@ unsigned CPU::tick(){
 				cycles += 16;
 			else{
 				cycles += 12;
+				pc += 3;
 			}
-			pc += 3;
 			break;
 		case 0xC2:
 			if(!get_flag_zero())
@@ -976,8 +981,8 @@ unsigned CPU::tick(){
 				cycles += 16;
 			else{
 				cycles += 12;
+				pc += 3;
 			}
-			pc += 3;
 			break;
 		case 0xD2:
 			if(!get_flag_carry())
@@ -1029,43 +1034,185 @@ unsigned CPU::tick(){
 			cycles += 16;
 			pc += 1;
 			break;
+		//push pop
+		case 0xF9:
+			sp = hl;
+			cycles += 8;
+			pc += 1;
+			break;
+		case 0xC1:
+			pop(&bc);
+			cycles += 12;
+			pc += 1;
+			break;	
+		case 0xD1:
+			pop(&de);
+			cycles += 12;
+			pc += 1;
+			break;
+		case 0xE1:
+			pop(&hl);
+			cycles += 12;
+			pc += 1;
+			break;
+		case 0xF1:
+			pop(&af);
+			cycles += 12;
+			pc += 1;
+			break;
+		case 0xC5:
+			push(&bc);
+			cycles += 16;
+			pc += 1;
+			break;
+		case 0xD5:
+			push(&de);
+			cycles += 16;
+			pc += 1;
+			break;
+		case 0xE5:
+			push(&hl);
+			cycles += 16;
+			pc += 1;
+			break;
+		case 0xF5:
+			push(&af);
+			cycles += 16;
+			pc += 1;
+			break;
+		case 0xC6:
+			UbAdd(&af,mmu->read(pc+1),0);
+			cycles += 8;
+			pc += 2;
+			break;
+		case 0xD6:
+			UbSub(&af,mmu->read(pc+1),0);
+			cycles += 8;
+			pc += 2;
+			break;
+		case 0xE6:
+			ANDa(mmu->read(pc+1));
+			cycles += 8;
+			pc += 2;
+			break;
+		case 0xF6:
+			ORa(mmu->read(pc+1));
+			cycles += 8;
+			pc += 2;
+			break;
+		case 0xE8:
+			set_flag_hcarry((sp&0xF + (mmu->read(pc+1))&0xF)&0x10);
+			set_flag_carry((sp&0xFF + (mmu->read(pc+1))&0xFF)&0x100);
+			sp += mmu->read(pc+1);
+			set_flag_zero(0);
+			set_flag_subtract(0);
+			pc += 2;
+			break;
+		case  0xE9:
+			pc = hl;
+			cycles += 4;
+			break;
+		//ret
+		case 0xC0:
+			if(!get_flag_zero()){
+				ret();
+				cycles += 20;
+			}else{
+				cycles += 8;
+				pc += 1;
+			}
+			break;
+		case 0xD0:
+			if(!get_flag_carry()){
+				ret();
+				cycles += 20;
+			}else{
+				cycles += 8;
+				pc += 1;
+			}
+			break;
+		case 0xC8:
+			if(get_flag_zero()){
+				ret();
+				cycles += 20;
+			}else{
+				cycles += 8;
+				pc += 1;
+			}
+			break;
+		case 0xD8:
+			if(get_flag_carry()){
+				ret();
+				cycles += 20;
+			}else{
+				cycles += 8;
+				pc += 1;
+			}
+
+			break;	
+		case 0xC9:
+			ret();
+			cycles += 16;
+			pc += 1;
+			break;
+		case 0xD9:
+			ret();
+			cycles += 16;
+			interrupts_enabled = true;
+			break;
+		case 0xFB:
+			interrupts_enabled = true;
+			cycles +=4;
+			pc += 1;
+			break;
+		case 0xF3:
+			interrupts_enabled = false;
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0xCD:
+			call();
+			cycles += 24;
+			break;
+		case 0xCC:
+			if(get_flag_zero()){
+				call();
+				cycles += 24;
+			}else{
+				cycles += 12;
+				pc += 3;
+			}
+			break;
+		case 0xDC:
+			if(get_flag_carry()){
+				call();
+				cycles += 24;
+			}else{
+				cycles += 12;
+				pc += 3;
+			}
+			break;
+		case 0xC4:
+			if(!get_flag_zero()){
+				call();
+				cycles += 24;
+			}else{
+				cycles += 12;
+				pc += 3;
+			}
+			break;
+		case 0xD4:
+			if(!get_flag_carry()){
+				call();
+				cycles += 24;
+			}else{
+				cycles += 12;
+				pc += 3;
+			}
+			break;
 
 
-
-
-
-
-
-
-
-
-		
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	
 	}
 }
+unsigned ExecuteCB(uint8_t opcode){}

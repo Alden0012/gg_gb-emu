@@ -81,12 +81,15 @@ private:
 	uint8_t &IF; // Interrupt Register
 	uint8_t &IE; // Interrupt Enable Register
 	uint16_t pc;
+	bool interrupts_enabled;
 	MMU* mmu;
 	//Todo: Add basic instructions
 public:
 	CPU();
 
 	unsigned tick();// reads opcode,decodes using switch case, executes instruction, increments PC.
+	unsigned ExecuteOpcode();
+	unsigned ExecuteCB();
 	unsigned CBExec(); // if the opcode was 0xCB, the next instruction byte is looked up from a seperate table dont forget to pc step +2 during tick.
 	void interrupt_check();
 	inline void attachMem(MMU* immu){
@@ -97,12 +100,30 @@ public:
 
 
 	//helper for opcodes
-	void CPU::UbAdd(uint16_t *reg x,uint8_t n,bool carry);
-	void CPU::LbAdd(uint16_t *reg x,uint8_t n, bool carry);
+	void UbAdd(uint16_t *reg x,uint8_t n,bool carry);
+	void LbAdd(uint16_t *reg x,uint8_t n, bool carry);
+	void UbSub(uint16_t *reg x,uint8_t n,bool carry);
+	void LbSub(uint16_t *reg x,uint8_t n, bool carry);	
+
 	void set_flag_zero(bool set);
 	void set_flag_subtract(bool set);
 	void set_flag_hcarry(bool set);
 	void set_flag_carry(bool set);
+	bool get_flag_carry();
+	bool get_flag_zero();
+	bool get_flag_subtract();
+	bool get_flag_hcarry();
+	void ANDa(const uint8_t byte);
+	void ORa(const uint8_t byte);
+	void XORa(const uint8_t byte);
+	void CPa(const uint8_t n);
+	void AddtoHL(const uint16_t &reg);
+	void rst(const uint16_t addr);
+	void push(uint16 &reg);
+	void pop(uint16 &reg);
+	void ret();
+	void call();
+
 
 
 
