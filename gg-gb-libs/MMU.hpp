@@ -17,8 +17,8 @@ private:
 		0xE000 - 0xFE00: Echo (Same as WRAM but typically unused) if you write to the actual RAM in range (0xC000 - 0xDE00) it writes to here as well
 		0xFE00 - 0xFE9F: Sprite Attribute Table (OAM)
 		0xFEA0 - 0xFEFF: Not usable
-		0xFF00 - 0xFF7F: Screen I/0 Ports
-		0xFF80 - 0xFFFE: High RAM
+		0xFF00 - 0xFF7F: Screen I/0 Ports 
+		0xFF80 - 0xFFFE: High RAM (aka zero page RAM)
 		0xFFFF: Interrupt Enable Register
 
 		Reserved Mem Locations:
@@ -48,7 +48,7 @@ public:
 	MMU(CPU &cp,MBC *bankcontrol);
 	inline uint8_t *returnMemref(){return &Memory;}
 	bool RAM_En = false; //Use MBC to control this;
-	void MMU::SetupCartridge(cartridge* icart)
+	void MMU::SetupCartridge(cartridge* icart);
 	//Read
 	uint8_t read(uint16_t addr);
 	uint16_t read16(uint16_t addr);
@@ -56,6 +56,9 @@ public:
 	uint16_t read16h(uint8_t addr);
 	uint8_t &ref(uint16_t addr){return Memory[addr];}
 	uint8_t &refh(uint16_t addr){return Memory[0xFF00 + addr];}
+	//Screen I/O cases
+	void MMU::readIO(uint16_t addr);
+	void MMU::writeIO(uint16_t addr, uint8_t data);
 	//Write (calls MBC control if writing to ROM)
 	void write(uint16_t addr,uint8_t data);
 	void writeh(uint8_t addr,uint8_t data);

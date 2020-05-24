@@ -8,10 +8,13 @@ CPU::CPU(){
 }
 unsigned CPU::tick(){
 	
-	interrupt_check();
-
+	HandleInterrupts();
+	if (halted){return 4;}
+	unsigned cycles;
 	uint8_t opcode = mmu->read(pc);
-	ExecuteOpcode(opcode);
+	cycles = ExecuteOpcode(opcode);
+	return cycles;
+
 }
 
 
@@ -25,22 +28,22 @@ unsigned CPU::ExecuteOpcode(uint8_t opcode){
 			pc += 1;
 			break;
 		case 0x01: //LD BC d16
-			bc = mmu->read16(pc+1);
+			bc = (mmu->read(pc+2) << 8) + mmu->read(pc+1);
 			cycles += 12;
 			pc += 3;
 			break;
 		case 0x11: // LD DE d16
-			de = mmu->read16(pc+1);
+			de = (mmu->read(pc+2) << 8) + mmu->read(pc+1);
 			cycles += 12;
 			pc += 3;
 			break;
 		case 0x21: // LD HL d16
-			hl = mmu->read16(pc+1);
+			hl = (mmu->read(pc+2) << 8) + mmu->read(pc+1);
 			cycles += 12;
 			pc += 3;
 			break;
 		case 0x31: // LD SP d16
-			sp = mmu->read16(pc+1);
+			sp = (mmu->read(pc+2) << 8) + mmu->read(pc+1);
 			cycles += 12;
 			pc += 3;
 			break;
@@ -205,7 +208,7 @@ unsigned CPU::ExecuteOpcode(uint8_t opcode){
 			pc +=1;
 			break;
 		case 0x08://write 16-bit sp to address given in operand
-			addr = mmu->read16(pc+1);
+			addr = (mmu->read(pc+2) << 8) + mmu->read(pc+1);
 			mmu->write(addr+1,sp >> 8);
 			mmu->write(addr,sp & 0x00FF);
 			cycles += 20;
@@ -1257,15 +1260,14 @@ unsigned CPU::ExecuteOpcode(uint8_t opcode){
 			cycles += 4;
 			pc += 1;
 			break;
-		case 0xCB:
-			ExecuteCB(opcode);
-		case 0x10:
-			//halt cpu? what
-			pc += 1;
+		case 0xCB:// cb prefix
+			ExecuteCB(mmu->read(pc+1));
+		case 0x10://stop
 			break;
 		case 0x76:
 			halted = true;
 			pc += 1;
+		//halt cpu? what? it keeps looping this until it gets an interrupt
 			break;
 		case 0x27://DAA: i understand 13% of whats happening here.
 			{
@@ -1295,4 +1297,52 @@ unsigned CPU::ExecuteOpcode(uint8_t opcode){
 	
 	}
 }
-unsigned ExecuteCB(uint8_t opcode){}
+unsigned CPU::ExecuteCB(uint8_t opcode){}
+
+void CPU::HandleInterrupts(){
+	if(interrupts_enabled){
+		InterruptFlagReg = mmu->read(0xFF0F);
+		uint8_t trueInterrupts = InterruptFlagReg & mmu->read(0xFFFF);
+		if(!trueInterrupts){ return; }
+		halted = false;
+		push(pc);
+		HandleInterrupt(trueInterrupts);
+
+
+	}
+}
+void CPU::HandleInterrupt(uint8_t flag){ //0: vblank, 1: lcdc, 2: timer, 3: serial, 4:joypad
+	if(flag & 0x1){ //vblank
+		InterruptFlagReg &= 0xFE;
+		pc = 0x40;
+		interrupts_enabled = false;
+		return;
+	}
+	else if(flag & 0x2){ //lcd stat
+		InterruptFlagReg &= 0xFD;
+		pc = 0x48;
+		interrupts_enabled = false;
+		return;		
+	}
+	else if (flag & 0x4)//timer
+	{
+		InterruptFlagReg &= 0xFB;
+		pc = 0x50;
+		interrupts_enabled = false;
+		return;			
+	}
+	else if (flag & 0x8)//serial
+	{
+		InterruptFlagReg &= 0xF7;
+		pc = 0x58;
+		interrupts_enabled = false;
+		return;	
+	}
+	else if (flag & 0x10)//joypad
+	{
+		InterruptFlagReg &= 0xEF;
+		pc = 0x60;
+		interrupts_enabled = false;
+		return;	
+	}
+}

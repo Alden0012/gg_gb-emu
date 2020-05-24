@@ -83,6 +83,7 @@ private:
 	uint16_t pc;
 	bool interrupts_enabled;
 	bool halted;
+	uint8_t InterruptFlagReg;
 	MMU* mmu;
 	//Todo: Add basic instructions
 public:
@@ -91,8 +92,10 @@ public:
 	unsigned tick();// reads opcode,decodes using switch case, executes instruction, increments PC.
 	unsigned ExecuteOpcode();
 	unsigned ExecuteCB();
-	unsigned CBExec(); // if the opcode was 0xCB, the next instruction byte is looked up from a seperate table dont forget to pc step +2 during tick.
-	void interrupt_check();
+	 // if the opcode was 0xCB, the next instruction byte is looked up from a seperate table dont forget to pc step +2 during tick.
+	void HandleInterrupts();
+	void HandleInterrupt(uint8_t flag);
+
 	inline void attachMem(MMU* immu){
 		mmu = immu;
 		IF = mmu.refh(0x0f);

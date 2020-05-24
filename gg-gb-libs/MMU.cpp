@@ -44,8 +44,13 @@ void MMU::SetupCartridge(cartridge* icart){
 
 //Read TODO: mem read special cases.
 	uint8_t MMU::read(uint16_t addr){
+		if (addr >= 0xFF00 & addr < 0xFF80){
+			return readIO(addr);
+		}else{
 		return Memory[addr];
+		}
 	}
+	//dont use these i beg you.
 	uint16_t MMU::read16(uint16_t addr){
 		return (Memory[addr+1] << 8 | Memory[addr]);
 	}
@@ -102,3 +107,6 @@ void MMU::SetupCartridge(cartridge* icart){
 	void MMU::writeh(uint8_t addr,uint8_t data){
 		Memory[addr + 0xFF] = data;
 	}
+
+	void MMU::readIO(uint16_t addr);
+	void MMU::writeIO(uint16_t addr, uint8_t data);
