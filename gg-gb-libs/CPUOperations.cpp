@@ -180,3 +180,34 @@ void CPU::call(){
 	push(&pc);
 	pc = addr;
 }
+uint8_t CPU::RL(uint8_t n,bool C){
+	uint8_t byte;
+	bool carrybit = get_flag_carry();
+	if (C){
+		byte = (n << 1) + n >> 7;
+	}
+	else{
+		byte = (n << 1) + carrybit;
+	}
+	set_flag_zero(byte == 0);
+	set_flag_carry(n >> 7);
+	set_flag_subtract(0);
+	set_flag_hcarry(0);
+	return byte;
+}
+uint8_t CPU::RR(uint8_t n,bool C){
+	uint8_t byte;
+	bool carrybit = get_flag_carry;
+	if(C){
+		byte = (n >> 1) + ((n & 0x01) << 7);
+	}
+	else{
+		byte = (n >> 1) + (carrybit << 7);
+	}
+	set_flag_zero(byte == 0);
+	set_flag_carry(n & 0x1);
+	set_flag_hcarry(0);
+	set_flag_subtract(0);
+	return byte;
+}
+

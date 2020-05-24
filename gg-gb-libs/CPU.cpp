@@ -11,7 +11,7 @@ unsigned CPU::tick(){
 	interrupt_check();
 
 	uint8_t opcode = mmu->read(pc);
-
+	ExecuteOpcode(opcode);
 }
 
 
@@ -1210,6 +1210,86 @@ unsigned CPU::ExecuteOpcode(uint8_t opcode){
 				pc += 3;
 			}
 			break;
+		//rotate a
+		case 0x07:
+			af = RL((af>> 8),1) + (af & 0xFF);
+			set_flag_zero(0);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x17:
+			af = RL((af>> 8),0) + (af & 0xFF);
+			set_flag_zero(0);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x0F:
+			af = RR((af>> 8),1) + (af & 0xFF);
+			set_flag_zero(0);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x1F:
+			af = RR((af>> 8),0) + (af & 0xFF);
+			set_flag_zero(0);
+			cycles += 4;
+			pc += 1;
+			break;
+		//carry flag stuff
+		case 0x37:
+			set_flag_carry(1);
+			set_flag_subtract(0);
+			set_flag_hcarry(0);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x3F:
+			set_flag_carry(!get_flag_carry());
+			set_flag_subtract(0);
+			set_flag_hcarry(0);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0x2F:
+			af = (~(af >> 8) << 8) + (af & 0xFF);
+			set_flag_subtract(1);
+			set_flag_hcarry(1);
+			cycles += 4;
+			pc += 1;
+			break;
+		case 0xCB:
+			ExecuteCB(opcode);
+		case 0x10:
+			//halt cpu? what
+			pc += 1;
+			break;
+		case 0x76:
+			halted = true;
+			pc += 1;
+			break;
+		case 0x27://DAA: i understand 13% of whats happening here.
+			{
+			uint8_t result = af >> 8;
+			uint16_t correction = get_flag_carry() ? 0x60 : 0x00;
+			if(get_flag_hcarry() || (!get_flag_subtract() && ((result & 0x0F) > 9))){
+				correction |= 0x06;
+			}
+			if(get_flag_carry() || (!get_flag_subtract()&&(result > 0x99))){
+				correction |= 0x60;
+			}
+			if(get_flag_subtract()){
+				result = result - correction
+			}else{
+				result = result + correction
+			}
+			af = ((result << 8) & 0xFF00) + (af & 0xFF);
+			if(((correction << 2) & 0x100) != 0){
+				set_flag_carry(true);
+			}
+			set_flag_hcarry(false);
+			set_flag_zero(result == 0);
+			}
+
 
 
 	

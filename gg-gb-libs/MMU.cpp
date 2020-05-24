@@ -1,5 +1,5 @@
 #include "MMU.hpp"
-#include 
+#include <iostream>
 
 MMU::MMU(CPU &cp){
 	cpu = cp;
@@ -42,7 +42,7 @@ void MMU::SetupCartridge(cartridge* icart){
 	mbc = cart->InitMBC(cart);
 }
 
-//Read
+//Read TODO: mem read special cases.
 	uint8_t MMU::read(uint16_t addr){
 		return Memory[addr];
 	}
@@ -86,6 +86,12 @@ void MMU::SetupCartridge(cartridge* icart){
 			//echo
 			Memory[addr] = data;
 			Memory[addr - 0x2000] = data;
+		}
+		else if(addr >= 0xFEA0 && addr < 0xFF00){
+			std::cerr << "unusable ram" << std::endl;
+		}
+		else if(addr >= 0xFF00 && addr < 0xFF80){
+			writeIO(addr,data);//make this;
 		}
 		else {
 			Memory[addr] = data;

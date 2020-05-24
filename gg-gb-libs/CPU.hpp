@@ -82,6 +82,7 @@ private:
 	uint8_t &IE; // Interrupt Enable Register
 	uint16_t pc;
 	bool interrupts_enabled;
+	bool halted;
 	MMU* mmu;
 	//Todo: Add basic instructions
 public:
@@ -123,6 +124,8 @@ public:
 	void pop(uint16 &reg);
 	void ret();
 	void call();
+	uint8_t RL(uint8_t n,bool C);
+	uint8_t RR(uint8_t n,bool C);
 
 
 
