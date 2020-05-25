@@ -1297,7 +1297,213 @@ unsigned CPU::ExecuteOpcode(uint8_t opcode){
 	
 	}
 }
-unsigned CPU::ExecuteCB(uint8_t opcode){}
+unsigned CPU::ExecuteCB(uint8_t opcode){
+	bool bit;
+	unsigned cycles = 0;
+	bool subt;
+	bool mem = false;
+	uint16_t *regref;
+	uint8_t newVal;
+	switch(opcode&0x0F){ // make it a bit easier 
+		case 0x0:
+			regref = &bc;
+			bit = 1;
+			subt = 0;
+			break;
+		case 0x1:
+			regref = &bc;
+			bit = 0;
+			subt = 0;
+			break;
+		case 0x2:
+			regref = &de;
+			bit = 1;
+			subt = 0;
+			break;
+		case 0x3:
+			regref = &de;
+			bit = 0;
+			subt = 0;
+			break;
+		case 0x4:
+			regref = &hl;
+			bit = 1;
+			subt = 0;
+			break;
+		case 0x5:
+			regref = &hl;
+			bit = 0;
+			subt = 0;
+			break;
+		case 0x6:
+			regref = &hl;
+			mem = true;
+			bit = 1;
+			subt = 0;
+			break;
+		case 0x7:
+			regref = &af;
+			bit = 1;
+			subt = 0;
+			break;
+		case 0x8:
+			regref = &bc;
+			bit = 1;
+			subt = 1;
+			break;
+		case 0x9:
+			regref = &bc;
+			bit = 0;
+			subt = 1;
+			break;
+		case 0xA:
+			regref = &de;
+			bit = 1;
+			subt = 1;
+			break;
+		case 0xB:
+			regref = &de;
+			bit = 0;
+			subt = 0;
+			break;
+		case 0xC:
+			regref = &hl;
+			bit = 1;
+			subt = 1;
+			break;
+		case 0xD:
+			regref = &hl;
+			bit = 0;
+			subt = 0;
+			break;
+		case 0xE:
+			regref = &hl;
+			mem = true;
+			bit = 1;
+			subt = 1;
+			break;
+		case 0xF:
+			regref = &af;
+			bit = 1;
+			subt = 1;
+			break;
+	if(bit){
+		newVal = (*regref >> 8)
+	}
+	else{
+		newVal = (regref & 0x0F)
+	}
+	uint8_t condition = (opcode & 0xF0) >> 8;
+	if(subt == 0){
+		if(!mem){
+		switch(condition){ //See how much better decoding is when its done right.
+			case 0x0:
+				PlaceVal(regref,RL(newVal,1),bit);
+				cycles += 8;
+				pc += 2;
+				break;
+			case 0x1:
+				PlaceVal(regref,RL(newVal,0),bit);
+				cycles += 8;
+				pc += 2;
+				break;
+			case 0x2:
+				PlaceVal(regref,(RL(newVal,1)&0xFE),bit);
+				cycles += 8;
+				pc += 2;
+				break;
+			case 0x3:
+			{
+				uint8_t UNib = (newVal & 0x0F) << 8;
+				uint8_t LNib = newVal >> 8;
+				if(!(UNib + LNib)){
+					set_flag_zero(1);
+				}
+				PlaceVal(regref,UNib + LNib,bit);
+			}
+				cycles += 8;
+				pc += 2;
+				break;
+			case 0x4: case 0x5: case 0x6: case 0x7:
+				BIT(0 + 2*(condition-4),newVal);
+				cycles += 8;
+				pc += 2;
+				break;
+			case 0x8: case 0x9: case 0xA: case 0xB:
+				PlaceVal(regref,RES(0 + 2*(condition-8),newVal),bit);
+				cycles += 8;
+				pc += 2;
+				break;
+			case 0xC: case 0xD: case 0xE: case 0xF:
+				PlaceVal(regref,SET(0 + 2*(condition-0xC),newVal),bit);
+				cycles += 8;
+				pc += 2;
+				break;
+		}
+	else{
+		switch(condition){ //Slightly messy but at least better than before
+			case 0x0:
+				mmu->write(*regref,RL(mmu->read(*regref),1));
+				cycles += 16;
+				pc += 2;
+				break;
+			case 0x1:
+				mmu->write(*regref,RL(mmu->read(*regref),1));
+				cycles += 16;
+				pc += 2;
+				break;
+			case 0x2:
+				mmu->write(*regref,(RL(mmu->read(*regref)&0xFE),1));
+				cycles += 16;
+				pc += 2;
+				break;
+			case 0x3:
+			{
+				uint8_t newVal2 = mmu->read(*regref);
+				uint8_t UNib = (newVal2 & 0x0F) << 8;
+				uint8_t LNib = newVal2 >> 8;
+				if(!(UNib + LNib)){
+					set_flag_zero(1);
+				}
+				mmu->write(*regref,UNib+LNib);
+			}
+				cycles += 12;
+				pc += 2;
+				break;
+			case 0x4: case 0x5: case 0x6: case 0x7:
+				BIT(0 + 2*(condition-4),newVal);
+				cycles += 8;
+				pc += 2;
+				break;
+			case 0x8: case 0x9: case 0xA: case 0xB:
+				PlaceVal(regref,RES(0 + 2*(condition-8),newVal),bit);
+				mmu->write(*regref,RES(0 + 2*(condition-8),mmu->read(*regref)));
+				cycles += 16;
+				pc += 2;
+				break;
+			case 0xC: case 0xD: case 0xE: case 0xF:
+				mmu->write(*regref,SET(0 + 2*(condition-0xC),mmu->read(*regref)));
+				cycles += 16;
+				pc += 2;
+				break;
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+		}
+	}
+
+	}
+}
 
 void CPU::HandleInterrupts(){
 	if(interrupts_enabled){

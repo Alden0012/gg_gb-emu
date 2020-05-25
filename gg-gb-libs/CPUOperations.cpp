@@ -210,4 +210,24 @@ uint8_t CPU::RR(uint8_t n,bool C){
 	set_flag_subtract(0);
 	return byte;
 }
+void CPU::PlaceVal(uint16_t &n,uint8_t newb,bool bit){
+	if(bit){
+		n = (newb << 8) + (n & 0x0F);
+	}else{
+		n = newb + (n & 0xF0);
+	}
+	return;
+}
+void CPU::BIT(uint8_t bit,uint8_t reg){
+	if(!((reg >> bit) & 0x1)){
+		set_flag_zero(1);
+	}
+	set_flag_hcarry(1);
 
+}
+uint8_t CPU::RES(uint8_t bit,uint8_t reg){
+	return ~((uint8_t)(0x1<<bit)) & reg;
+}
+uint8_t CPU::SET(uint8_t bit,uint8_t reg){
+	return (0x1 << bit) | reg;
+}

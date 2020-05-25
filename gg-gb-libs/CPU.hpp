@@ -129,6 +129,10 @@ public:
 	void call();
 	uint8_t RL(uint8_t n,bool C);
 	uint8_t RR(uint8_t n,bool C);
+	void PlaceVal(uint16_t &n,uint8_t newb,bool bit);
+	void BIT(uint8_t bit,uint8_t reg);
+	uint8_t RES(uint8_t bit,uint8_t reg);
+	uint8_t SET(uint8_t bit,uint8_t reg);
 
 
 
