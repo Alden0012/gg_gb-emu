@@ -1,3 +1,4 @@
+#include "CPU.hpp"
 CPU::CPU(){
 	af = 0x01B0;
 	bc = 0x0013;
@@ -90,17 +91,17 @@ unsigned CPU::ExecuteOpcode(uint8_t opcode){
 			pc += 1;
 			break;
 		case 0x04:// INC B
-			UbAdd(&bc,1,0);
+			UbAdd(bc,1,0);
 			cycles += 4;
 			pc += 1;
 			break;
 		case 0x14:// INC D
-			UbAdd(&de,1,0);
+			UbAdd(de,1,0);
 			cycles += 4;
 			pc += 1;
 			break;
 		case 0x24:// INC H
-			UbAdd(&hl,1,0);
+			UbAdd(hl,1,0);
 			cycles += 4;
 			pc += 1;
 			break;
@@ -119,57 +120,57 @@ unsigned CPU::ExecuteOpcode(uint8_t opcode){
 			break;
 		}
 		case 0x0C://INC C
-			LbAdd(&bc,1,0);
+			LbAdd(bc,1,0);
 			cycles += 4;
 			pc += 1;
 			break;
 		case 0x1C://INC E
-			LbAdd(&de,1,0);
+			LbAdd(de,1,0);
 			cycles += 4;
 			pc += 1;
 			break;
 		case 0x2C://INC L
-			LbAdd(&hl,1,0);
+			LbAdd(hl,1,0);
 			cycles += 4;
 			pc += 1;
 			break;
 		case 0x3C://INC A
-			UbAdd(&af,1,0);
+			UbAdd(af,1,0);
 			cycles += 4;
 			pc += 1;
 			break;
 		case 0x0D://DEC C
-			LbSub(&bc,1,0);
+			LbSub(bc,1,0);
 			cycles += 4;
 			pc += 1;
 			break;
 		case 0x1D://DEC E
-			LbSub(&de,1,0);
+			LbSub(de,1,0);
 			cycles += 4;
 			pc += 1;
 			break;
 		case 0x2D://DEC L
-			LbSub(&hl,1,0);
+			LbSub(hl,1,0);
 			cycles += 4;
 			pc += 1;
 			break;
 		case 0x3D://DEC A
-			UbSub(&af,1,0);
+			UbSub(af,1,0);
 			cycles += 4;
 			pc += 1;
 			break;
 		case 0x05://DEC B
-			UbSub(&bc,1,0);
+			UbSub(bc,1,0);
 			cycles += 4;
 			pc += 1;
 			break;
 		case 0x15://DEC D
-			UbSub(&de,1,0);
+			UbSub(de,1,0);
 			cycles += 4;
 			pc += 1;
 			break;
 		case 0x25://DEC H
-			UbSub(&hl,1,0);
+			UbSub(hl,1,0);
 			cycles += 4;
 			pc += 1;
 			break;
@@ -188,29 +189,31 @@ unsigned CPU::ExecuteOpcode(uint8_t opcode){
 			break;
 		}
 		case 0x09:// Hl += BC
-			AddtoHL(&bc);
+			AddtoHL(bc);
 			cycles += 8;
 			pc += 1;
 			break;
 		case 0x19:// HL += DE
-			AddtoHL(&de);
+			AddtoHL(de);
 			cycles += 8;
 			pc += 1;
 			break;
 		case 0x29:// HL += HL
-			AddtoHL(&hl);
+			AddtoHL(hl);
 			cycles += 8;
 			pc += 1;
 			break;
 		case 0x39:// HL += SP
-			AddtoHL(&sp);
+			AddtoHL(sp);
 			cycles += 8;
 			pc +=1;
 			break;
 		case 0x08://write 16-bit sp to address given in operand
-			addr = (mmu->read(pc+2) << 8) + mmu->read(pc+1);
+		{	
+			uint16_t addr = (mmu->read(pc+2) << 8) + mmu->read(pc+1);
 			mmu->write(addr+1,sp >> 8);
 			mmu->write(addr,sp & 0x00FF);
+		}
 			cycles += 20;
 			pc += 3;
 			break;
@@ -258,7 +261,7 @@ unsigned CPU::ExecuteOpcode(uint8_t opcode){
 			pc += 2;
 			break;
 		//load inst 0x40 - 0x7F
-		case 0x40: case 0x49: case 0x52: case 0x58: case 0x64: case 0x6D: case 0x7F:
+		case 0x40: case 0x49: case 0x52: case 0x5B: case 0x64: case 0x6D: case 0x7F:
 			cycles += 4;
 			pc += 1;
 			break;
@@ -327,7 +330,7 @@ unsigned CPU::ExecuteOpcode(uint8_t opcode){
 			cycles += 8;
 			pc += 1;
 			break;
-		case 0x4D:
+		case 0x4F:
 			bc = (af >> 8) + (bc & 0xFF00);
 			cycles += 4;
 			pc += 1;
@@ -575,162 +578,162 @@ unsigned CPU::ExecuteOpcode(uint8_t opcode){
 		// loads done bois!
 		// ADD / SUB instructions
 		case 0x80:
-			UbAdd(&af,bc >> 8,0);
+			UbAdd(af,bc >> 8,0);
 			cycles += 4;
 			pc += 1;
 			break;
 		case 0x81:
-			UbAdd(&af,bc & 0x00FF,0);
+			UbAdd(af,bc & 0x00FF,0);
 			cycles += 4;
 			pc += 1;
 			break;
 		case 0x82:
-			UbAdd(&af,de >> 8,0);
+			UbAdd(af,de >> 8,0);
 			cycles += 4;
 			pc += 1;
 			break;
 		case 0x83:
-			UbAdd(&af,de & 0x00FF,0);
+			UbAdd(af,de & 0x00FF,0);
 			cycles += 4;
 			pc += 1;
 			break;
 		case 0x84:
-			UbAdd(&af,hl >> 8,0);
+			UbAdd(af,hl >> 8,0);
 			cycles += 4;
 			pc += 1;
 			break;
 		case 0x85:
-			UbAdd(&af,hl & 0x00FF,0);
+			UbAdd(af,hl & 0x00FF,0);
 			cycles += 4;
 			pc += 1;
 			break;
 		case 0x86:
-			UbAdd(&af,mmu->read(hl),0);
+			UbAdd(af,mmu->read(hl),0);
 			cycles += 8;
 			pc += 1;
 			break;
 		case 0x87:
-			UbAdd(&af,af >> 8,0);
+			UbAdd(af,af >> 8,0);
 			cycles += 4;
 			pc += 1;
 			break;
 		case 0x88:
-			UbAdd(&af,bc >> 8,1);
+			UbAdd(af,bc >> 8,1);
 			cycles += 4;
 			pc += 1;
 			break;
 		case 0x89:
-			UbAdd(&af,bc & 0x00FF,1);
+			UbAdd(af,bc & 0x00FF,1);
 			cycles += 4;
 			pc += 1;
 			break;
 		case 0x8A:
-			UbAdd(&af,de >> 8,1);
+			UbAdd(af,de >> 8,1);
 			cycles += 4;
 			pc += 1;
 			break;
 		case 0x8B:
-			UbAdd(&af,de & 0x00FF,1);
+			UbAdd(af,de & 0x00FF,1);
 			cycles += 4;
 			pc += 1;
 			break;
 		case 0x8C:
-			UbAdd(&af,hl >> 8,1);
+			UbAdd(af,hl >> 8,1);
 			cycles += 4;
 			pc += 1;
 			break;
 		case 0x8D:
-			UbAdd(&af,hl & 0x00FF,1);
+			UbAdd(af,hl & 0x00FF,1);
 			cycles += 4;
 			pc += 1;
 			break;
 		case 0x8E:
-			UbAdd(&af,mmu->read(hl),1);
+			UbAdd(af,mmu->read(hl),1);
 			cycles += 8;
 			pc += 1;
 			break;
 		case 0x8F:
-			UbAdd(&af,af >> 8,1);
+			UbAdd(af,af >> 8,1);
 			cycles += 4;
 			pc += 1;
 			break;
 		case 0x90:
-			UbSub(&af,bc >> 8,0);
+			UbSub(af,bc >> 8,0);
 			cycles += 4;
 			pc += 1;
 			break;
 		case 0x91:
-			UbSub(&af,bc & 0x00FF,0);
+			UbSub(af,bc & 0x00FF,0);
 			cycles += 4;
 			pc += 1;
 			break;
 		case 0x92:
-			UbSub(&af,de >> 8,0);
+			UbSub(af,de >> 8,0);
 			cycles += 4;
 			pc += 1;
 			break;
 		case 0x93:
-			UbSub(&af,de & 0x00FF,0);
+			UbSub(af,de & 0x00FF,0);
 			cycles += 4;
 			pc += 1;
 			break;
 		case 0x94:
-			UbSub(&af,hl >> 8,0);
+			UbSub(af,hl >> 8,0);
 			cycles += 4;
 			pc += 1;
 			break;
 		case 0x95:
-			UbSub(&af,hl & 0x00FF,0);
+			UbSub(af,hl & 0x00FF,0);
 			cycles += 4;
 			pc += 1;
 			break;
 		case 0x96:
-			UbSub(&af,mmu->read(hl),0);
+			UbSub(af,mmu->read(hl),0);
 			cycles += 8;
 			pc += 1;
 			break;
 		case 0x97:
-			UbSub(&af,af >> 8,0);
+			UbSub(af,af >> 8,0);
 			cycles += 4;
 			pc += 1;
 			break;
 		case 0x98:
-			UbSub(&af,bc >> 8,1);
+			UbSub(af,bc >> 8,1);
 			cycles += 4;
 			pc += 1;
 			break;
 		case 0x99:
-			UbSub(&af,bc & 0x00FF,1);
+			UbSub(af,bc & 0x00FF,1);
 			cycles += 4;
 			pc += 1;
 			break;
 		case 0x9A:
-			UbSub(&af,de >> 8,1);
+			UbSub(af,de >> 8,1);
 			cycles += 4;
 			pc += 1;
 			break;
 		case 0x9B:
-			UbSub(&af,de & 0x00FF,1);
+			UbSub(af,de & 0x00FF,1);
 			cycles += 4;
 			pc += 1;
 			break;
 		case 0x9C:
-			UbSub(&af,hl >> 8,1);
+			UbSub(af,hl >> 8,1);
 			cycles += 4;
 			pc += 1;
 			break;
 		case 0x9D:
-			UbSub(&af,hl & 0x00FF,1);
+			UbSub(af,hl & 0x00FF,1);
 			cycles += 4;
 			pc += 1;
 			break;
 		case 0x9E:
-			UbSub(&af,mmu->read(hl),1);
+			UbSub(af,mmu->read(hl),1);
 			cycles += 8;
 			pc += 1;
 			break;
 		case 0x9F:
-			UbSub(&af,af >> 8,1);
+			UbSub(af,af >> 8,1);
 			cycles += 4;
 			pc += 1;
 			break;
@@ -874,33 +877,33 @@ unsigned CPU::ExecuteOpcode(uint8_t opcode){
 			cycles += 4;
 			pc += 1;
 			break;
-		case 0xB8:
+		case 0xBC:
 			CPa(hl >> 8);
 			cycles += 4;
 			pc += 1;
 			break;
-		case 0xB9:
+		case 0xBD:
 			CPa(hl & 0x00FF);
 			cycles += 4;
 			pc += 1;
 			break;
-		case 0xB8:
+		case 0xBE:
 			CPa(mmu->read(hl));
 			cycles += 8;
 			pc += 1;
 			break;
-		case 0xB9:
+		case 0xBF:
 			CPa(af >> 8);
 			cycles += 4;
 			pc += 1;
 			break;
 		case 0xCE:
-			UbAdd(&af,mmu->read(pc+1),1);
+			UbAdd(af,mmu->read(pc+1),1);
 			cycles += 8;
 			pc += 2;
 			break;
 		case 0xDE:
-			UbSub(&af,mmu->read(pc+1),1);
+			UbSub(af,mmu->read(pc+1),1);
 			cycles += 8;
 			pc += 2;
 			break;
@@ -961,36 +964,39 @@ unsigned CPU::ExecuteOpcode(uint8_t opcode){
 			}
 			break;
 		case 0xCA:
-			if(get_flag_zero())
+			if(get_flag_zero()){
 				pc = mmu->read(pc+2) | mmu->read(pc+1);
 				cycles += 16;
+			}
 			else{
 				cycles += 12;
 				pc += 3;
 			}
 			break;
 		case 0xDA:
-			if(get_flag_carry())
+			if(get_flag_carry()){
 				pc = mmu->read(pc+2) | mmu->read(pc+1);
 				cycles += 16;
+			}
 			else{
 				cycles += 12;
 				pc += 3;
 			}
 			break;
 		case 0xC2:
-			if(!get_flag_zero())
+			if(!get_flag_zero()){
 				pc = mmu->read(pc+2) | mmu->read(pc+1);
 				cycles += 16;
+			}
 			else{
 				cycles += 12;
 				pc += 3;
 			}
 			break;
 		case 0xD2:
-			if(!get_flag_carry())
+			if(!get_flag_carry()){
 				pc = mmu->read(pc+2) | mmu->read(pc+1);
-				cycles += 16;
+				cycles += 16;}
 			else{
 				cycles += 12;
 			}
@@ -1044,52 +1050,52 @@ unsigned CPU::ExecuteOpcode(uint8_t opcode){
 			pc += 1;
 			break;
 		case 0xC1:
-			pop(&bc);
+			pop(bc);
 			cycles += 12;
 			pc += 1;
 			break;	
 		case 0xD1:
-			pop(&de);
+			pop(de);
 			cycles += 12;
 			pc += 1;
 			break;
 		case 0xE1:
-			pop(&hl);
+			pop(hl);
 			cycles += 12;
 			pc += 1;
 			break;
 		case 0xF1:
-			pop(&af);
+			pop(af);
 			cycles += 12;
 			pc += 1;
 			break;
 		case 0xC5:
-			push(&bc);
+			push(bc);
 			cycles += 16;
 			pc += 1;
 			break;
 		case 0xD5:
-			push(&de);
+			push(de);
 			cycles += 16;
 			pc += 1;
 			break;
 		case 0xE5:
-			push(&hl);
+			push(hl);
 			cycles += 16;
 			pc += 1;
 			break;
 		case 0xF5:
-			push(&af);
+			push(af);
 			cycles += 16;
 			pc += 1;
 			break;
 		case 0xC6:
-			UbAdd(&af,mmu->read(pc+1),0);
+			UbAdd(af,mmu->read(pc+1),0);
 			cycles += 8;
 			pc += 2;
 			break;
 		case 0xD6:
-			UbSub(&af,mmu->read(pc+1),0);
+			UbSub(af,mmu->read(pc+1),0);
 			cycles += 8;
 			pc += 2;
 			break;
@@ -1280,9 +1286,9 @@ unsigned CPU::ExecuteOpcode(uint8_t opcode){
 				correction |= 0x60;
 			}
 			if(get_flag_subtract()){
-				result = result - correction
+				result = result - correction;
 			}else{
-				result = result + correction
+				result = result + correction;
 			}
 			af = ((result << 8) & 0xFF00) + (af & 0xFF);
 			if(((correction << 2) & 0x100) != 0){
@@ -1387,11 +1393,12 @@ unsigned CPU::ExecuteCB(uint8_t opcode){
 			bit = 1;
 			subt = 1;
 			break;
+	}	
 	if(bit){
-		newVal = (*regref >> 8)
+		newVal = (*regref >> 8);
 	}
 	else{
-		newVal = (regref & 0x0F)
+		newVal = (*regref & 0x0F);
 	}
 	uint8_t condition = (opcode & 0xF0) >> 8;
 	if(subt == 0){
@@ -1440,9 +1447,10 @@ unsigned CPU::ExecuteCB(uint8_t opcode){
 				pc += 2;
 				break;
 		}
-	else{
+	}else{
 		switch(condition){ //Slightly messy but at least better than before
 			case 0x0:
+				
 				mmu->write(*regref,RL(mmu->read(*regref),1));
 				cycles += 16;
 				pc += 2;
@@ -1453,7 +1461,7 @@ unsigned CPU::ExecuteCB(uint8_t opcode){
 				pc += 2;
 				break;
 			case 0x2:
-				mmu->write(*regref,(RL(mmu->read(*regref)&0xFE),1));
+				mmu->write(*regref,(RL(mmu->read(*regref),1))&0xFE);
 				cycles += 16;
 				pc += 2;
 				break;
@@ -1476,7 +1484,7 @@ unsigned CPU::ExecuteCB(uint8_t opcode){
 				pc += 2;
 				break;
 			case 0x8: case 0x9: case 0xA: case 0xB:
-				PlaceVal(regref,RES(0 + 2*(condition-8),newVal),bit);
+				//PlaceVal(regref,RES(0 + 2*(condition-8),newVal),bit);
 				mmu->write(*regref,RES(0 + 2*(condition-8),mmu->read(*regref)));
 				cycles += 16;
 				pc += 2;
@@ -1486,29 +1494,109 @@ unsigned CPU::ExecuteCB(uint8_t opcode){
 				cycles += 16;
 				pc += 2;
 				break;
-	}
-
-
-
-
-
-
-
-
-
-
-
-
+		}
 		}
 	}
 
+
+	
+	else{ // Subtable 2
+		if(!mem){
+		switch(condition){ //non mem
+			case 0x0:
+				PlaceVal(regref,RR(newVal,1),bit);
+				cycles += 8;
+				pc += 2;
+				break;
+			case 0x1:
+				PlaceVal(regref,RR(newVal,0),bit);
+				cycles += 8;
+				pc += 2;
+				break;
+			case 0x2:
+				PlaceVal(regref,(RR(newVal,1)&0x7F),bit);
+				cycles += 8;
+				pc += 2;
+				break;
+			case 0x3:
+			{
+				bool Ubit = newVal >> 7;
+				newVal = (Ubit << 7) + RR(newVal,1)& 0x7F;
+				PlaceVal(regref,newVal,bit);
+			}
+				cycles += 8;
+				pc += 2;
+				break;
+			case 0x4: case 0x5: case 0x6: case 0x7:
+				BIT(1 + 2*(condition-4),newVal);
+				cycles += 8;
+				pc += 2;
+				break;
+			case 0x8: case 0x9: case 0xA: case 0xB:
+				PlaceVal(regref,RES(1 + 2*(condition-8),newVal),bit);
+				cycles += 8;
+				pc += 2;
+				break;
+			case 0xC: case 0xD: case 0xE: case 0xF:
+				PlaceVal(regref,SET(1 + 2*(condition-0xC),newVal),bit);
+				cycles += 8;
+				pc += 2;
+				break;
+		}
 	}
-}
+		else{
+		switch(condition){ //mem
+			case 0x0:
+				mmu->write(*regref,RR(mmu->read(*regref),1));
+				cycles += 16;
+				pc += 2;
+				break;
+			case 0x1:
+				mmu->write(*regref,RR(mmu->read(*regref),1));
+				cycles += 16;
+				pc += 2;
+				break;
+			case 0x2:
+				mmu->write(*regref,(RR(mmu->read(*regref),1))&0x7F);
+				cycles += 16;
+				pc += 2;
+				break;
+			case 0x3:
+			{
+				uint8_t newVal2 = mmu->read(*regref);
+				bool Ubit = newVal2 >> 7;
+				newVal2 = (Ubit << 7) + RR(newVal2,1)& 0x7F;
+				mmu->write(*regref,newVal2);
+			}
+				cycles += 16;
+				pc += 2;
+				break;
+			case 0x4: case 0x5: case 0x6: case 0x7:
+				BIT(1 + 2*(condition-4),newVal);
+				cycles += 12;
+				pc += 2;
+				break;
+			case 0x8: case 0x9: case 0xA: case 0xB:
+				//PlaceVal(regref,RES(1 + 2*(condition-8),newVal),bit);
+				mmu->write(*regref,RES(1 + 2*(condition-8),mmu->read(*regref)));
+				cycles += 16;
+				pc += 2;
+				break;
+			case 0xC: case 0xD: case 0xE: case 0xF:
+				mmu->write(*regref,SET(1 + 2*(condition-0xC),mmu->read(*regref)));
+				cycles += 16;
+				pc += 2;
+				break;
+		}
+		}
+	}
+	}
+
 
 void CPU::HandleInterrupts(){
 	if(interrupts_enabled){
-		InterruptFlagReg = mmu->read(0xFF0F);
-		uint8_t trueInterrupts = InterruptFlagReg & mmu->read(0xFFFF);
+		InterruptFlagReg = *IF;
+		uint8_t trueInterrupts = InterruptFlagReg & *IE;
 		if(!trueInterrupts){ return; }
 		halted = false;
 		push(pc);
@@ -1519,36 +1607,41 @@ void CPU::HandleInterrupts(){
 }
 void CPU::HandleInterrupt(uint8_t flag){ //0: vblank, 1: lcdc, 2: timer, 3: serial, 4:joypad
 	if(flag & 0x1){ //vblank
-		InterruptFlagReg &= 0xFE;
+		*IF &= 0xFE;
 		pc = 0x40;
 		interrupts_enabled = false;
 		return;
 	}
 	else if(flag & 0x2){ //lcd stat
-		InterruptFlagReg &= 0xFD;
+		*IF &= 0xFD;
 		pc = 0x48;
 		interrupts_enabled = false;
 		return;		
 	}
 	else if (flag & 0x4)//timer
 	{
-		InterruptFlagReg &= 0xFB;
+		*IF &= 0xFB;
 		pc = 0x50;
 		interrupts_enabled = false;
 		return;			
 	}
 	else if (flag & 0x8)//serial
 	{
-		InterruptFlagReg &= 0xF7;
+		*IF &= 0xF7;
 		pc = 0x58;
 		interrupts_enabled = false;
 		return;	
 	}
 	else if (flag & 0x10)//joypad
 	{
-		InterruptFlagReg &= 0xEF;
+		*IF &= 0xEF;
 		pc = 0x60;
 		interrupts_enabled = false;
 		return;	
 	}
 }
+void CPU::attachMem(MMU* immu){
+		mmu = immu;
+		IF = &(mmu->refh(0x0f));
+		IE = &(mmu->refh(0xff));
+	}

@@ -27,7 +27,7 @@ bool CPU::get_flag_subtract(){
 bool CPU::get_flag_hcarry(){
 	return((af>>5)&0x1);
 }
-void CPU::UbAdd(uint16_t & x,const uint8_t n,const bool c){
+void CPU::UbAdd(uint16_t &x,const uint8_t n,const bool c){
 	uint8_t ub = (x >> 8);
 
 	bool carry = c && get_flag_carry();
@@ -108,7 +108,7 @@ void CPU::AddtoHL(const uint16_t &reg){
 	}else{set_flag_carry(0);}
 	if((hl & 0xfff) + (reg & 0xfff) > 0xfff){
 		set_flag_hcarry(1);
-	}else{set_flag_hcarry(0;)}
+	}else{set_flag_hcarry(0);}
 	set_flag_subtract(0);
 	hl += reg;
 
@@ -136,7 +136,7 @@ void CPU::XORa(const uint8_t byte){
 }
 void CPU::CPa(const uint8_t n){
 	uint8_t ub = (af >> 8);
-	bool carry = c && get_flag_carry(); 
+	bool carry = 0; 
 	if(n != 1){
 		set_flag_carry(ub < (carry + n));
 		set_flag_hcarry((n & 0x0F + (int)carry) > ub & 0x0F );
@@ -158,13 +158,13 @@ void CPU::rst(const uint16_t addr){
 	mmu->write(sp,pc & 0x00FF);
 	pc = addr;
 }
-void CPU::push(const uint16 &reg){
+void CPU::push(const uint16_t &reg){
 	sp--;
 	mmu->write(sp,reg>>8);
 	sp--;
 	mmu->write(sp,reg & 0x00FF);
 }
-void CPU::pop(uint16 &reg){
+void CPU::pop(uint16_t &reg){
 	uint8_t lowbyte = mmu->read(sp);
 	sp++;
 	uint8_t highbyte = mmu->read(sp);
@@ -175,9 +175,9 @@ void CPU::ret(){
 	pop(pc);
 }
 void CPU::call(){
-	addr = (mmu->read(pc+2) << 8) + (mmu->read(pc+1));
+	uint16_t addr = (mmu->read(pc+2) << 8) + (mmu->read(pc+1));
 	pc += 3;
-	push(&pc);
+	push(pc);
 	pc = addr;
 }
 uint8_t CPU::RL(uint8_t n,bool C){
@@ -197,7 +197,7 @@ uint8_t CPU::RL(uint8_t n,bool C){
 }
 uint8_t CPU::RR(uint8_t n,bool C){
 	uint8_t byte;
-	bool carrybit = get_flag_carry;
+	bool carrybit = get_flag_carry();
 	if(C){
 		byte = (n >> 1) + ((n & 0x01) << 7);
 	}
@@ -210,11 +210,13 @@ uint8_t CPU::RR(uint8_t n,bool C){
 	set_flag_subtract(0);
 	return byte;
 }
-void CPU::PlaceVal(uint16_t &n,uint8_t newb,bool bit){
+void CPU::PlaceVal(uint16_t *n,uint8_t newb,bool bit){
+	uint16_t safe = *n;
 	if(bit){
-		n = (newb << 8) + (n & 0x0F);
+
+		*n = (newb << 8) + (safe & 0x0F);
 	}else{
-		n = newb + (n & 0xF0);
+		*n = newb + (safe & 0xF0);
 	}
 	return;
 }

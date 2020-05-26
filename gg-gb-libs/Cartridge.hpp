@@ -6,6 +6,8 @@
 #include "MMU.hpp"
 #include "MBC.hpp"
 #include <array>
+class MMU;
+class MBC;
 class Cartridge{
 	/*
 	enjoy reading all of this :)
@@ -127,8 +129,8 @@ public:
 	Cartridge(MMU* mem);
 	bool load(char* path);
 	MBC *InitMBC(Cartridge* icart);
-	inline uint8_t getROM(){return cart_rom;}
-	inline uint8_t getROM_Size(){return rom_size;}
+	inline uint8_t *getROM(){return cart_rom;}
+	inline uint8_t getROM_Size(){return rom_Size;}
 	inline uint8_t getRAM_Size(){return ram_Size;}
 
 
@@ -136,7 +138,7 @@ public:
 
 
 
-}
+};
 
 
 

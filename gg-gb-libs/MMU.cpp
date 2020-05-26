@@ -1,8 +1,7 @@
 #include "MMU.hpp"
 #include <iostream>
 
-MMU::MMU(CPU &cp){
-	cpu = cp;
+MMU::MMU(){
 	//boot sequence
 	Memory[0xFF05] = 0x00;
 	Memory[0xFF06] = 0x00;
@@ -37,7 +36,7 @@ MMU::MMU(CPU &cp){
 	Memory[0xFF4B] = 0x00;
 	Memory[0xFFFF] = 0x00;
 }
-void MMU::SetupCartridge(cartridge* icart){
+void MMU::SetupCartridge(Cartridge* icart){
 	cart = icart;
 	mbc = cart->InitMBC(cart);
 }
@@ -64,14 +63,14 @@ void MMU::SetupCartridge(cartridge* icart){
 //Write (dont forget to implement echo write for 0xC000-0xDE00 and 0xE000-0xFE00)
 	void MMU::write(uint16_t addr,uint8_t data){
 		if (addr >= 0x0000 && addr < 0x8000){
-			mbc->control(addr,data);
+			mbc->Control(addr,data);
 		}
 		/*else if (addr >= 0x8000 & addr < 0xA000){
 			//VRAM
 		}*/
 		else if (addr >= 0xA000 & addr < 0xC000){
 			//External Ram from cartridge
-			if(Ram_En){
+			if(RAM_En){
 			Memory[addr] = data;
 			}
 		}/*
@@ -108,5 +107,5 @@ void MMU::SetupCartridge(cartridge* icart){
 		Memory[addr + 0xFF] = data;
 	}
 
-	void MMU::readIO(uint16_t addr);
-	void MMU::writeIO(uint16_t addr, uint8_t data);
+	uint8_t MMU::readIO(uint16_t addr){}
+	void MMU::writeIO(uint16_t addr, uint8_t data){}

@@ -14,6 +14,6 @@ int main(int argc, char **argv){
 		MMU.SetupCartridge(&cart)
 	}
 	else{
-		std::cerr >> "Failed to load rom" >> std::endl;
+		std::cerr << "Failed to load rom" << std::endl;
 	}
 }

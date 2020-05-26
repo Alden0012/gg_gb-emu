@@ -1,11 +1,12 @@
 #include "MBC.hpp"
+void MBC::setMemoryref(MMU* mmu){Memory = mmu->returnMemref(); immu = mmu;}
 MBC::MBC(Cartridge * icart){
 	cart = icart;
 		switch(cart->getROM_Size()){
 		case 0:
 			RomBanks = 2;
 		case 1:
-			Rombanks = 4;
+			RomBanks = 4;
 		case 2:
 			RomBanks = 8;
 		case 3:
@@ -25,7 +26,7 @@ MBC::MBC(Cartridge * icart){
 
 	}
 	switch(cart->getRAM_Size()){
-		case 0;
+		case 0:
 			RamBanks = 0;
 		case 1:
 			RamBanks = 1;
@@ -38,19 +39,21 @@ MBC::MBC(Cartridge * icart){
 
 	}
 	uint8_t *TempRam[RamBanks * 8 * 1024];
-	Eram = TempRam;
+	Eram = TempRam[0];
 }
+
 void MBC::initMemory(){// load initial banks 0 and 1 to memory
 	CurrentRomBank = 1;
 	uint8_t *CartROM = cart->getROM();
-	for(uint16t i = 0; i < 0x8000;i++){
-		Memory[i] = CartROM[i]
+	for(uint16_t i = 0; i < 0x8000;i++){
+		Memory[i] = CartROM[i];
 	}
 }
 //-------------------------------------Rom Only MBC
 // were you expecting something ?
 //-------------------------------------MBC1
 void MBC1::Control(uint16_t addr,uint8_t data){
+	uint8_t *CartROM = cart->getROM();
 	if(addr >= 0x2000 && addr < 0x4000){ //    Switch banks
 		uint8_t bank = data & 0x1F;
 		if (bank !=0){CurrentRomBank = bank;}else{CurrentRomBank = 1;} 
@@ -80,20 +83,21 @@ void MBC1::Control(uint16_t addr,uint8_t data){
 		}else{
 			mode = 1;
 		}
-	else if(addr >= 0x4000 && address < 0x6000){// set RAM if mode = 1, or set upper bits of rom bank if rom = 0
+	}
+	else if(addr >= 0x4000 && addr < 0x6000){// set RAM if mode = 1, or set upper bits of rom bank if rom = 0
 		if(mode == 1){
-			CurrentRamBank = data & 0x3
+			CurrentRamBank = data & 0x3;
 			for(uint16_t i = 0x0;i<0x2000;i++){
-				Memory[0xA000+i] = Eram[i + (CurrentRamBank)*0x2000] //switching ram banks
+				Memory[0xA000+i] = Eram[i + (CurrentRamBank)*0x2000]; //switching ram banks
 			}
 		}
 		else{
 			//this is stupid ayaya! ayaya!!!
-			CurrentRomBank = (CurrentRomBank & 01F)|((data & 0x03)<<5) //set lower bits of current rom bank or sumn man
-			if(CurrentRomBank == 0x0 || CurrentRomBank == 0x20 || CurrentRomBank == 0x40 || CurrentRomBank = 0x60){// Current rom bank cannot be special rom bank
+			CurrentRomBank = (CurrentRomBank & 0x01F)|((data & 0x03)<<5); //set lower bits of current rom bank or sumn man
+			if(CurrentRomBank == 0x0 || CurrentRomBank == 0x20 || CurrentRomBank == 0x40 || CurrentRomBank == 0x60){// Current rom bank cannot be special rom bank
 				CurrentRomBank++;
 			}
-			CurrentRomBank &= (RomBanks-1) //restrict it back to range i guess
+			CurrentRomBank &= (RomBanks-1); //restrict it back to range i guess
 			
 			for(uint16_t i = 4000; i < 0x8000;i++ ){
 				Memory[i] = CartROM[i+0x4000*CurrentRomBank];
@@ -103,11 +107,12 @@ void MBC1::Control(uint16_t addr,uint8_t data){
 
 	}
 
-	}
+}
 	
 	//todo: ram switching
-}
+
 void MBC2::Control(uint16_t addr,uint8_t data){
+	uint8_t *CartROM = cart->getROM();
 	if(addr >= 0x2000 & addr < 0x4000){
 		uint8_t bank = data & 0x0F;
 		for(uint16_t i = 4000; i < 0x8000;i++ ){

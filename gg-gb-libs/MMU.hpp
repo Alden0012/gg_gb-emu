@@ -1,9 +1,12 @@
 #ifndef MMU_HPP
 #define MMU_HPP
 #include<cstdint>
-
-
-
+#include "MBC.hpp"
+#include "CPU.hpp"
+#include "Cartridge.hpp"
+class MBC;
+class CPU;
+class Cartridge;
 class MMU{
 private:
 	/*
@@ -37,18 +40,18 @@ private:
 
 	*/
 	uint8_t Memory[65536];
-	MBC* mbc;
-	Cartridge* cart;
-	CPU &cpu;
+	MBC* mbc = nullptr;
+	Cartridge* cart = nullptr;
+	// CPU *cpu = nullptr;
 
 
 	//void swapROMBank(uint8_t bank);
 	//void swapRAMBank(uint8_t bank);
 public:
-	MMU(CPU &cp,MBC *bankcontrol);
-	inline uint8_t *returnMemref(){return &Memory;}
+	MMU();
+	inline uint8_t *returnMemref(){return &Memory[0];}
 	bool RAM_En = false; //Use MBC to control this;
-	void MMU::SetupCartridge(cartridge* icart);
+	void SetupCartridge(Cartridge* icart);
 	//Read
 	uint8_t read(uint16_t addr);
 	uint16_t read16(uint16_t addr);
@@ -57,8 +60,8 @@ public:
 	uint8_t &ref(uint16_t addr){return Memory[addr];}
 	uint8_t &refh(uint16_t addr){return Memory[0xFF00 + addr];}
 	//Screen I/O cases
-	void MMU::readIO(uint16_t addr);
-	void MMU::writeIO(uint16_t addr, uint8_t data);
+	uint8_t readIO(uint16_t addr);
+	void writeIO(uint16_t addr, uint8_t data);
 	//Write (calls MBC control if writing to ROM)
 	void write(uint16_t addr,uint8_t data);
 	void writeh(uint8_t addr,uint8_t data);
@@ -76,5 +79,5 @@ public:
 	}
 	//todo: save()
 
-}
+};
 #endif
