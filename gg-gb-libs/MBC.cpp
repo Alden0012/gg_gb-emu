@@ -85,10 +85,12 @@ void MBC1::Control(uint16_t addr,uint8_t data){
 		}
 	}
 	else if(addr >= 0x4000 && addr < 0x6000){// set RAM if mode = 1, or set upper bits of rom bank if rom = 0
+		if(immu->RAM_En){
 		if(mode == 1){
 			CurrentRamBank = data & 0x3;
 			for(uint16_t i = 0x0;i<0x2000;i++){
-				Memory[0xA000+i] = Eram[i + (CurrentRamBank)*0x2000]; //switching ram banks
+				Eram[i + (PrevRamBank)*0x2000] = Memory[0xA000+i];
+				Memory[0xA000+i ] = Eram[i + (CurrentRamBank)*0x2000]; 
 			}
 		}
 		else{
@@ -104,7 +106,7 @@ void MBC1::Control(uint16_t addr,uint8_t data){
 			}
 		}
 		
-
+	}
 	}
 
 }
@@ -124,4 +126,65 @@ void MBC2::Control(uint16_t addr,uint8_t data){
 			}
 		}
 	}
+}
+
+void MBC3::Control(uint16_t addr, uint8_t data){
+	uint8_t *CartROM = cart->getROM();
+	if(addr >= 0x2000 && addr < 0x4000){ //    Switch banks
+		uint8_t bank = data & 0x7F;
+		if (bank !=0){CurrentRomBank = bank;}else{CurrentRomBank = 1;} 
+		for(uint16_t i = 4000; i < 0x8000;i++ ){
+			if (bank != 0){
+				Memory[i] = CartROM[i+0x4000*bank];
+
+			}
+			else{
+				Memory[i] = CartROM[i+0x4000];
+
+			}
+		}
+	}
+	else if(addr >= 0x0000 && addr < 0x2000){// Wram enable
+		if(data == 0x00){
+			immu->RAM_En = false;
+		}
+		else if(data == 0x0A){
+			immu->RAM_En = true;
+		}
+
+	}
+	else if(addr >= 0x4000 && addr < 0x6000){// set RAM if mode = 1, or set upper bits of rom bank if rom = 0
+	if(RAM_En){
+		if(data <= 0x8){
+			uint8_t PrevRamBank = CurrentRamBank;
+			CurrentRamBank = data & 0x7;
+			for(uint16_t i = 0x0;i<0x2000;i++){ // swapping banks;
+				if (PrevRamBank <= 0x3){
+				Eram[i + (PrevRamBank)*0x2000] = Memory[0xA000+i];
+				Memory[0xA000+i ] = Eram[i + (CurrentRamBank)*0x2000]; 
+				}
+				else{
+					if((RTC[5] >> 6)0x1){
+					RTC[PrevRamBank-0x8] = Memory[0xA000];
+					Memory[0xA000+i ] = Eram[i + (CurrentRamBank)*0x2000]; 
+				}
+				}
+			}
+		}
+		else{
+			uint8_t PrevRamBank = CurrentRamBank;
+			CurrentRamBank = data & 0x7;
+			if (PrevRamBank <= 0x3){
+				Eram[i + (PrevRamBank)*0x2000] = Memory[0xA000+i];
+				Memory[0xA000+i ] = RTC[data -0x8]; 
+				}
+				else{
+					if((RTC[5] >> 6)0x1){
+					RTC[PrevRamBank - 0x8] = Memory[0xA000];
+					Memory[0xA000+i ] = RTC[data - 0x8]; 
+				}
+				}
+		}
+	}
+}
 }

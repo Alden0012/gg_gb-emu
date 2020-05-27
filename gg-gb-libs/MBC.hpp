@@ -52,9 +52,14 @@ class MBC2 : public MBC{
 public:
 	MBC2(Cartridge *icart) : MBC(icart){};
 	void Control(uint16_t addr, uint8_t data);
+
 };
 
 class MBC3 : public MBC{
+private:
+	uint8_t RTCRegs[5];// real time clock regs, [0] is seconds, [1] is minutes, [2] is hours, [3] lower 8 bits of day counter, [4] ( bit 0 is msb of day counter, bit 6 is halt(active-LOW), bit 7 is day counter carry bit);
+public:
+	MBC3(Cartridge *icart) : MBC(icart){};
 	void Control(uint16_t addr, uint8_t data);
 };
 
